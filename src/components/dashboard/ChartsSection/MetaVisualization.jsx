@@ -118,11 +118,11 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
 
       {/* Progress bar */}
       <div style={{ position: 'relative', marginBottom: 24 }}>
-        <div style={{ height: 48, width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 999, overflow: 'hidden' }}>
+        <div style={{ height: 16, width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 9999, overflow: 'hidden' }}>
           <div
             ref={barRef}
             style={{
-              height: '100%', width: '0%', borderRadius: 999,
+              height: '100%', width: '0%', borderRadius: 9999,
               background: 'linear-gradient(60deg, #0523E5, #94D1FF)',
               transition: 'none',
             }}

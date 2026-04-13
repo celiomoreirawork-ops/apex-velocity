@@ -48,17 +48,21 @@ export default function RankingChart({ salesData = [] }) {
   const dataVals = sorted.map(s => s[1].revenue);
   const maxVal   = Math.max(...dataVals, 1);
 
+  const globalVolumeLeader = Math.max(...sorted.map(s => s[1].qty));
+  const globalBiggestSale  = Math.max(...sorted.map(s => s[1].biggestSale));
+
   const fullData = sorted.map(([name, d]) => ({
     name, revenue: d.revenue, qty: d.qty,
-    topModel: Object.entries(d.models).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A',
-    biggestSale: d.biggestSale, biggestSaleModel: d.biggestSaleModel, biggestSaleQty: d.biggestSaleQty
+    biggestSale: d.biggestSale,
+    vehicleTags: Object.entries(d.models).sort((a, b) => b[1] - a[1]),
+    isVolumeLeader: d.qty === globalVolumeLeader && globalVolumeLeader > 0,
+    isBiggestSaleLeader: d.biggestSale === globalBiggestSale && globalBiggestSale > 0
   }));
 
   const dataKey = dataVals.join(',');
   const [hasAnimated, setHasAnimated] = useState(false);
   const containerRef = useRef(null);
 
-  // Intersection Observer to trigger animation once
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -72,7 +76,6 @@ export default function RankingChart({ salesData = [] }) {
     return () => observer.disconnect();
   }, [hasAnimated]);
 
-  // Bar entrance animation — ONCE when in viewport
   useEffect(() => {
     if (!hasAnimated || !dataVals.length) return;
     const bars = barsRef.current.filter(Boolean);
@@ -82,18 +85,24 @@ export default function RankingChart({ salesData = [] }) {
       targets: bars,
       height:  (_, i) => `${(dataVals[i] / maxVal) * 100}%`,
       opacity: [0, 1],
-      duration: 2000, // Reduced speed (Task 5)
+      duration: 2000, 
       easing: 'cubicBezier(0.22, 1, 0.36, 1)',
       delay: anime.stagger(100)
     });
-  }, [hasAnimated, dataKey, maxVal]); // Only run if hasAnimated becomes true or data changes
+  }, [hasAnimated, dataKey, maxVal]); 
 
-  // ... (tooltip follow logic) ...
+  const handleMouseMove = (e) => {
+    const t = document.getElementById('ranking-tooltip');
+    if (t) {
+      t.style.left = `${e.clientX + 48}px`;
+      t.style.top = `${e.clientY}px`;
+      t.style.transform = 'translateY(-50%)'; 
+    }
+  };
 
   const handleEnter = (idx) => {
     setHoveredData(fullData[idx]);
     setTimeout(() => { const t = document.getElementById('ranking-tooltip'); if (t) t.classList.add('visible'); }, 0);
-    // Simple hover state adjustment without restarting full bar animation
     barsRef.current.forEach((bar, i) => {
       if (!bar) return;
       const rg = bar.closest('.rg');
@@ -110,7 +119,7 @@ export default function RankingChart({ salesData = [] }) {
   const handleLeave = () => {
     setHoveredData(null);
     const t = document.getElementById('ranking-tooltip');
-    if (t) t.classList.remove('visible');
+    if (t) { t.classList.remove('visible'); t.style.top = '-999px'; t.style.left = '-999px'; }
     barsRef.current.forEach(bar => {
       if (!bar) return;
       const rg = bar.closest('.rg');
@@ -121,19 +130,17 @@ export default function RankingChart({ salesData = [] }) {
 
   return (
     <div ref={containerRef} className="standard-card">
-      {/* Header — icon + title, no subtitle */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <IconBarChart />
           <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>Ranking de Vendas</h3>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: 999 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: 9999 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.blue400, flexShrink: 0 }} className="animate-pulse" />
           <span style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal' }}>Live stats</span>
         </div>
       </div>
 
-      {/* Bars */}
       <div style={{ height: 280, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 24, padding: '0 16px', overflowX: 'auto' }}>
         {dataVals.length > 0 ? dataVals.map((val, idx) => (
           <div
@@ -141,12 +148,13 @@ export default function RankingChart({ salesData = [] }) {
             className="rg"
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: 44, minWidth: 44, flexShrink: 0, height: '100%', cursor: 'pointer', position: 'relative' }}
             onMouseEnter={() => handleEnter(idx)}
+            onMouseMove={handleMouseMove}
             onMouseLeave={handleLeave}
           >
-            <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.04)' }}>
+            <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', borderRadius: 9999, overflow: 'hidden', background: 'rgba(255,255,255,0.04)' }}>
               <div
                 ref={el => { barsRef.current[idx] = el; }}
-                style={{ width: '100%', height: '0%', background: BAR_GRADIENT, borderRadius: 999, transformOrigin: 'bottom' }}
+                style={{ width: '100%', height: '0%', background: BAR_GRADIENT, borderRadius: 9999, transformOrigin: 'bottom' }}
               />
             </div>
               <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -161,12 +169,22 @@ export default function RankingChart({ salesData = [] }) {
         )}
       </div>
 
-      {/* Tooltip */}
       {createPortal(
         <div
           id="ranking-tooltip"
-          className={`fixed z-[9999] rounded-xl p-5 shadow-2xl backdrop-blur-xl pointer-events-none transition-opacity duration-150 ${hoveredData ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-          style={{ width: 240, top: -999, left: -999, background: '#24252E' }}
+          className={`fixed z-[9999] p-5 shadow-2xl backdrop-blur-xl pointer-events-none`}
+          style={{ 
+            width: 240, 
+            top: -999, 
+            left: -999, 
+            background: '#24252E', 
+            borderRadius: 16,
+            border: '1px solid rgba(88,91,108,0.20)',
+            opacity: hoveredData ? 1 : 0,
+            visibility: hoveredData ? 'visible' : 'hidden',
+            transition: 'opacity 0.15s ease-out',
+            transform: 'translateY(-50%)'
+          }}
         >
           {hoveredData && (
             <>
@@ -174,17 +192,42 @@ export default function RankingChart({ salesData = [] }) {
                 {hoveredData.name}
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[
-                  { label: 'Receita total',      value: formatFullBRL(hoveredData.revenue) },
-                  { label: 'Volume',             value: `${hoveredData.qty} unidades` },
-                  { label: 'Mix dominante',      value: hoveredData.topModel },
-                  { label: 'Maior venda única',  value: formatFullBRL(hoveredData.biggestSale) },
-                ].map(({ label, value }) => (
-                  <div key={label}>
-                    <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginBottom: 2 }}>{label}</p>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{value}</p>
+                <div>
+                  <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginBottom: 2 }}>Receita total</p>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em' }}>{formatFullBRL(hoveredData.revenue)}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginBottom: 2 }}>Volume total</p>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{hoveredData.qty} unidades</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginBottom: 2 }}>Maior venda única</p>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{formatFullBRL(hoveredData.biggestSale)}</p>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                  {hoveredData.vehicleTags.map(([model, qty]) => (
+                      <div key={model} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(88,91,108,0.30)', borderRadius: 9999, padding: '4px 10px' }}>
+                          <span style={{ fontSize: 10, fontWeight: 300, color: C.white }}>{model}</span>
+                          <span style={{ fontSize: 10, fontWeight: 500, color: C.blue200 }}>{qty}</span>
+                      </div>
+                  ))}
+                </div>
+
+                {(hoveredData.isVolumeLeader || hoveredData.isBiggestSaleLeader) && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                    {hoveredData.isVolumeLeader && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(88,91,108,0.30)', borderRadius: 9999, padding: '4px 10px' }}>
+                            <span style={{ fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Líder de Volume</span>
+                        </div>
+                    )}
+                    {hoveredData.isBiggestSaleLeader && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(88,91,108,0.30)', borderRadius: 9999, padding: '4px 10px' }}>
+                            <span style={{ fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Maior Venda Única</span>
+                        </div>
+                    )}
                   </div>
-                ))}
+                )}
               </div>
             </>
           )}

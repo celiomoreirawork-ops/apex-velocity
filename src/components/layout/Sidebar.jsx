@@ -14,7 +14,7 @@ const C = {
 };
 
 const Logo = () => (
-    <svg width="120" height="auto" viewBox="0 0 192 26" fill="none" stroke="none" strokeWidth="0" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', width: 120, height: 'auto', stroke: 'none', strokeWidth: 0 }} className="force-no-stroke">
+    <svg width="80" height="auto" viewBox="0 0 192 26" fill="none" stroke="none" strokeWidth="0" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', width: 80, height: 'auto', stroke: 'none', strokeWidth: 0, margin: '0 auto' }} className="force-no-stroke">
         <path d="M11.9743 19.2262L13.976 25.0309H0L4.68804 16.9106L11.9743 19.2262Z" fill="#0523E5" stroke="none" />
         <path d="M28.9035 25.0308H18.436L21.642 12.4536L28.9035 25.0308Z" fill="#0523E5" stroke="none" />
         <path d="M19.6854 9.06495L7.19043 12.5767L14.452 0L19.6854 9.06495Z" fill="#0523E5" stroke="none" />
@@ -108,7 +108,7 @@ export default function Sidebar({ activePage, onPageChange, status }) {
       zIndex: 40,
     }}>
       {/* Logo Container */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
         <Logo />
       </div>
 

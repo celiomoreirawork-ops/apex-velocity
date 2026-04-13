@@ -132,7 +132,7 @@ export default function SalesTable({ salesData }) {
             <AnimatePresence>
               {filteredSales.map((item, idx) => (
                 <Motion.tr
-                  layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   key={`${item.seller}-${item.model}-${idx}`}
                   style={{ borderTop: '1px solid rgba(88,91,108,0.12)', cursor: 'default' }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
