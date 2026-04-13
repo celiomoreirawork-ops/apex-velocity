@@ -51,8 +51,16 @@ const KPIBlock = ({ label, value }) => (
 
 export default function MetaVisualization({ percent, rawRealized, rawTarget, onTargetChange }) {
   const barRef = useRef(null);
+  const containerRef = useRef(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
   const [isEditingMeta, setIsEditingMeta] = useState(false);
   const [editMetaText, setEditMetaText] = useState(formatMetaDisplay(rawTarget || 2000000));
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([e]) => { if (e.isIntersecting) setHasAnimated(true); }, { threshold: 0.1 });
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const currentLevel = useMemo(() => {
     if (percent >= 175)      return 'lendario';
@@ -63,11 +71,11 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
   }, [percent]);
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!hasAnimated || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const tw = (Math.min(percent, 175) / 175) * 100;
-    const anim = anime({ targets: barRef.current, width: ['0%', `${tw}%`], duration: 900, easing: 'easeOutQuart' });
+    const anim = anime({ targets: barRef.current, width: ['0%', `${tw}%`], duration: 1800, easing: 'easeOutQuart' });
     return () => { anim.pause(); };
-  }, [percent]);
+  }, [hasAnimated, percent]);
 
   const handleSaveMeta = () => {
     const val = parseMeta(editMetaText);
@@ -83,7 +91,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
   const isSurplus = diff > 0;
 
   return (
-    <div className="standard-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16, height: '100%', position: 'relative', background: C.gray900 }}>
+    <div ref={containerRef} className="standard-card" style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%', position: 'relative', background: C.gray900 }}>
 
       {/* Achievement badge */}
       {percent >= 100 && currentLevel && (

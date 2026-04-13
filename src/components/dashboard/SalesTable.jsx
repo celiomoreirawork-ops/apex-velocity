@@ -75,9 +75,9 @@ export default function SalesTable({ salesData }) {
   }, [salesData, filterSeller, filterModel, filterCategory, filterType, sortOrder]);
 
   return (
-    <div className="standard-card" style={{ padding: 0, overflow: 'hidden' }}>
+    <div className="standard-card" style={{ overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ padding: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <IconFileText />
           <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>Relatório de Vendas</h3>

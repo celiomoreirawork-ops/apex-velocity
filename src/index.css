@@ -72,15 +72,16 @@
 @layer utilities {
   .apex-card {
     background: var(--color-gray-900);
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 48px;
     /* NO border, NO box-shadow border emulation */
   }
 
   /* standard-card alias kept for backwards compat */
   .standard-card {
     background: var(--color-gray-900);
-    border-radius: 10px;
+    border-radius: 16px;
+    padding: 48px;
     border: none !important;
     outline: none !important;
   }

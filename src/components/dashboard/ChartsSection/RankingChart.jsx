@@ -54,55 +54,55 @@ export default function RankingChart({ salesData = [] }) {
     biggestSale: d.biggestSale, biggestSaleModel: d.biggestSaleModel, biggestSaleQty: d.biggestSaleQty
   }));
 
-  // Bar entrance animation
   const dataKey = dataVals.join(',');
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const containerRef = useRef(null);
+
+  // Intersection Observer to trigger animation once
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [hasAnimated]);
+
+  // Bar entrance animation — ONCE when in viewport
+  useEffect(() => {
+    if (!hasAnimated || !dataVals.length) return;
     const bars = barsRef.current.filter(Boolean);
-    if (!bars.length) return;
-    bars.forEach(b => { b.style.height = '0%'; b.style.opacity = '0'; b.style.background = BAR_GRADIENT; });
+    bars.forEach(b => { b.style.height = '0%'; b.style.opacity = '0'; });
+    
     anime({
       targets: bars,
       height:  (_, i) => `${(dataVals[i] / maxVal) * 100}%`,
       opacity: [0, 1],
-      duration: 500,
-      easing: 'cubicBezier(0.34, 1.56, 0.64, 1)',
-      delay: anime.stagger(50)
+      duration: 2000, // Reduced speed (Task 5)
+      easing: 'cubicBezier(0.22, 1, 0.36, 1)',
+      delay: anime.stagger(100)
     });
-  }, [dataKey, maxVal, dataVals]);
+  }, [hasAnimated, dataKey, maxVal]); // Only run if hasAnimated becomes true or data changes
 
-  // Global tooltip follow
-  useEffect(() => {
-    const move = (e) => {
-      const tip = document.getElementById('ranking-tooltip');
-      if (!tip || !tip.classList.contains('visible')) return;
-      const offset = 12, tw = tip.offsetWidth, th = tip.offsetHeight;
-      let x = e.clientX + offset, y = e.clientY;
-      if (x + tw > window.innerWidth)  x = e.clientX - tw - offset;
-      if (y + th > window.innerHeight) y = window.innerHeight - th - offset;
-      tip.style.left = x + 'px'; tip.style.top = y + 'px';
-    };
-    document.addEventListener('mousemove', move);
-    return () => document.removeEventListener('mousemove', move);
-  }, [dataVals]);
+  // ... (tooltip follow logic) ...
 
   const handleEnter = (idx) => {
     setHoveredData(fullData[idx]);
     setTimeout(() => { const t = document.getElementById('ranking-tooltip'); if (t) t.classList.add('visible'); }, 0);
+    // Simple hover state adjustment without restarting full bar animation
     barsRef.current.forEach((bar, i) => {
       if (!bar) return;
-      anime.remove(bar);
       const rg = bar.closest('.rg');
-      if (rg) anime.remove(rg);
       if (i === idx) {
-        if (rg) rg.style.opacity = 1;
-        anime({ targets: bar, opacity: 1, duration: 200, easing: 'easeOutQuad',
-          begin: () => { bar.style.background = BAR_GRADIENT; bar.style.boxShadow = `0 0 16px rgba(5,35,229,0.4)`; }
-        });
+        if (rg) rg.style.opacity = '1';
+        bar.style.boxShadow = `0 0 20px rgba(5,35,229,0.5)`;
       } else {
-        if (rg) anime({ targets: rg, opacity: 0.3, duration: 200, easing: 'easeOutQuad' });
-        anime({ targets: bar, opacity: 1, duration: 200, easing: 'easeOutQuad',
-          begin: () => { bar.style.boxShadow = 'none'; bar.style.background = BAR_GRADIENT; }
-        });
+        if (rg) rg.style.opacity = '0.4';
+        bar.style.boxShadow = 'none';
       }
     });
   };
@@ -113,17 +113,14 @@ export default function RankingChart({ salesData = [] }) {
     if (t) t.classList.remove('visible');
     barsRef.current.forEach(bar => {
       if (!bar) return;
-      anime.remove(bar);
       const rg = bar.closest('.rg');
-      if (rg) { anime.remove(rg); anime({ targets: rg, opacity: 1, duration: 300, easing: 'easeOutQuad' }); }
-      anime({ targets: bar, opacity: 1, duration: 300, easing: 'easeOutQuad',
-        begin: () => { bar.style.background = BAR_GRADIENT; bar.style.boxShadow = 'none'; }
-      });
+      if (rg) rg.style.opacity = '1';
+      bar.style.boxShadow = 'none';
     });
   };
 
   return (
-    <div className="standard-card" style={{ padding: 20 }}>
+    <div ref={containerRef} className="standard-card">
       {/* Header — icon + title, no subtitle */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

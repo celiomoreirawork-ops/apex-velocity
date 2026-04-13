@@ -105,10 +105,10 @@ export default function TopSellerCard({
   }, []);
 
   return (
-    <div className="standard-card" style={{ display: 'flex', height: '100%', padding: 0, overflow: 'hidden' }}>
+    <div className="standard-card" style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
       {/* === LEFT: metrics === */}
-      <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
 
         {/* Card title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

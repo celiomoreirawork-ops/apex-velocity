@@ -33,6 +33,8 @@ function Legend({ entries, getColor }) {
 
 function DonutChart({ title, data, total, getColor }) {
   const [hovered, setHovered] = useState(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const containerRef = useRef(null);
   const SIZE = 140, CX = 70, CY = 70, R = 52, T = 20;
   const pathsRef = useRef([]);
 
@@ -55,13 +57,19 @@ function DonutChart({ title, data, total, getColor }) {
   };
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const anim = anime({ targets: pathsRef.current.filter(Boolean), strokeDashoffset: [anime.setDashoffset, 0], duration: 600, easing: 'easeInOutQuad', delay: anime.stagger(40) });
+    const observer = new IntersectionObserver(([e]) => { if (e.isIntersecting) setHasAnimated(true); }, { threshold: 0.1 });
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!hasAnimated || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const anim = anime({ targets: pathsRef.current.filter(Boolean), strokeDashoffset: [anime.setDashoffset, 0], duration: 1200, easing: 'easeInOutQuad', delay: anime.stagger(80) });
     return () => anim.pause();
-  }, [data]);
+  }, [hasAnimated, data]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ position: 'relative', width: SIZE, height: SIZE }}>
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ width: SIZE, height: SIZE, strokeWidth: 'unset', fill: 'none', stroke: 'none' }}>
           <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={T} />
@@ -133,7 +141,7 @@ const BarTable = ({ entries, totalUnits, sectionTitle }) => (
               </div>
             </div>
             <div style={{ width: '100%', background: 'rgba(255,255,255,0.04)', borderRadius: 2, height: 4, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${pct}%`, background: BAR_GRADIENT, borderRadius: 2, transition: 'width 1s ease' }} />
+              <div style={{ height: '100%', width: `${pct}%`, background: BAR_GRADIENT, borderRadius: 2, transition: 'width 2s ease' }} />
             </div>
           </div>
         );
@@ -157,7 +165,7 @@ export default function MixDistribution({ salesData }) {
   const getSpecColor = (label) => SEG_SPEC[label] || 'rgba(255,255,255,0.15)';
 
   return (
-    <div className="standard-card" style={{ padding: 20, display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="standard-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <IconPieChart />
         <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>Composição de Mercado</h3>

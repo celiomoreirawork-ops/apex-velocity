@@ -39,7 +39,6 @@ export default function KPICards({ avgTicket }) {
       <Motion.div
         variants={itemConfig}
         className="standard-card dashboard-card"
-        style={{ padding: 20 }}
       >
         <p style={{ fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em', marginBottom: 8 }}>
           Ticket médio

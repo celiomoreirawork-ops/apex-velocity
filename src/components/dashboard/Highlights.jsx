@@ -56,7 +56,7 @@ export default function Highlights({ biggestSale, biggestSaleVal, biggestSaleQty
   return (
     <Motion.div variants={containerConfig} initial="hidden" animate="show"
       className="standard-card"
-      style={{ padding: 20, display: 'flex', flexDirection: 'column', height: '100%', gap: 16 }}>
+      style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 16 }}>
 
       {/* Card title — icon + title, no subtitle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
