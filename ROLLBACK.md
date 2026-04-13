@@ -31,6 +31,18 @@ Para restaurar o projeto inteiro para um estado anterior:
 ## 4. Recuperação via Backup Automático
 Se o `backup.bat` foi executado, você verá commits com o padrão `auto-backup YYYY-MM-DD_HH-MM`. Eles são pontos de restauração garantidos.
 
-## 5. Cuidados Importantes
+## 5. Backup Externo (GitHub/GitLab)
+Para garantir que o histórico esteja salvo fora deste computador:
+1. Crie um repositório vazio no GitHub/GitLab.
+2. Adicione o remoto:
+   ```bash
+   git remote add origin https://github.com/usuario/apex-velocity.git
+   ```
+3. Envie os dados:
+   ```bash
+   git push -u origin main
+   ```
+
+## 6. Cuidados Importantes
 - **Banco de Dados/Planilha**: Note que o Git controla o código, não os dados na planilha do Google Sheets.
 - **Sincronização**: Se reverter para uma versão antiga onde o polling era diferente, certifique-se de validar o arquivo `.env`.

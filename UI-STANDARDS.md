@@ -20,7 +20,7 @@
 ## 4. LOGO
 - Minimalist logo mark in sidebar, 20px height.
 
-## 5. ANIMATIONS (ANIME.JS / FRAMER MOTION)
-- Entrance stagger: 80ms
-- Hover lift: translateY(-2px)
-- Bezier: `cubicBezier(0.22, 1, 0.36, 1)`
+## 6. VISUAL REGRESSION & SNAPSHOTS
+- **Directory**: `src/__snapshots__/`
+- **Purpose**: Store static references (images or config JSONs) before critical UI changes.
+- **Protocol**: Every drastical change in the dashboard layout must be preceded by a manual snapshot to allow visual rollback comparison.
