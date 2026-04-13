@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 32" fill="none">
+  <!-- Blue triangle mark -->
+  <polygon points="0,28 14,4 28,28" fill="#0523E5" />
+  <!-- Wordmark -->
+  <text x="36" y="24" font-family="Inter, sans-serif" font-size="18" font-weight="500" letter-spacing="-0.03em" fill="#FFFFFF">Apex Dash</text>
+</svg>
