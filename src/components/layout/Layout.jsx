@@ -9,11 +9,11 @@ export default function Layout({ children, status }) {
       {/* Sidebar — 200px fixed */}
       <Sidebar activePage={activePage} onPageChange={setActivePage} status={status} />
 
-      {/* Content area — 8px gap from sidebar, 48px global padding */}
+      {/* Content area — 8px gap from sidebar, 24px global padding */}
       <main style={{
         flex: 1,
         marginLeft: 248, // 240px sidebar + 8px gap
-        padding: 48,
+        padding: 24,
         minHeight: '100vh',
         background: '#000000',
       }}>

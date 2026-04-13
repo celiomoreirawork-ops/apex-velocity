@@ -15,7 +15,7 @@ export function useDashboardData() {
         let reconnectTimeout = null;
 
         const connect = () => {
-            console.log(`[SSE] Tentando conectar em ${API_BASE_URL}/api/events...`);
+            console.log(`Conectando ao SSE... (${API_BASE_URL}/api/events)`);
             
             if (eventSource) {
                 eventSource.close();
@@ -24,20 +24,20 @@ export function useDashboardData() {
             eventSource = new EventSource(`${API_BASE_URL}/api/events`);
 
             eventSource.onopen = () => {
-                console.log("[SSE] Conexão estabelecida com sucesso.");
+                console.log("Conectado");
                 setStatus('live');
                 setError(null);
             };
 
             eventSource.onmessage = (event) => {
                 try {
-                    // Ignora keep-alive do servidor se vier no data
                     if(!event.data || event.data === 'keep-alive') return;
 
                     const parsed = JSON.parse(event.data);
-                    console.log(`[SSE] Mensagem recebida: ${parsed.type}`);
+                    console.log(`Evento recebido: ${parsed.type}`);
 
                     if (parsed.type === 'SYNC' || parsed.type === 'UPDATE') {
+                        console.log("Atualizando estado");
                         setData(parsed.payload);
                         setStatus('live');
                     } else if(parsed.type === 'ERROR') {
@@ -50,17 +50,40 @@ export function useDashboardData() {
             };
 
             eventSource.onerror = (err) => {
-                console.error("[SSE] Erro na conexão. Tentando reconectar em 5s...", err);
+                console.error("[SSE] Erro na conexão. Usando fallback REST e tentando reconectar...", err);
                 setStatus('reconnecting...');
                 eventSource.close();
                 
-                // Força uma reconexão manual após 5 segundos se o navegador não reconectar sozinho
+                // Fallback: faz fetch via REST endpoint enquanto SSE tenta voltar
+                fetch(`${API_BASE_URL}/api/data`)
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success && res.data) {
+                            console.log("[Fallback REST] Dados recebidos via API GET.");
+                            setData(res.data);
+                        }
+                    })
+                    .catch(e => console.error("[Fallback REST] Falha também na API REST:", e.message));
+
                 clearTimeout(reconnectTimeout);
                 reconnectTimeout = setTimeout(connect, 5000);
             };
         };
 
-        connect();
+        // Fetch inicial garantido imediatamente antes da conexão SSE se concretizar (Zero Delay UX)
+        fetch(`${API_BASE_URL}/api/data`)
+            .then(r => r.json())
+            .then(res => {
+                if (res.success && res.data) {
+                    console.log("[Init Fetch] Dados providos imediatamente pela API REST.");
+                    setData(res.data);
+                }
+            })
+            .catch(e => console.warn("[Init Fetch] API indisponível ou vazia no momento...", e.message))
+            .finally(() => {
+                // Inicia SSE na sequência
+                connect();
+            });
 
         return () => {
             console.log("[SSE] Limpando conexão no unmount...");

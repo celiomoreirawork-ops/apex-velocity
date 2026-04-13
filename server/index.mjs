@@ -1,5 +1,13 @@
-/* global process */
-import 'dotenv/config';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+console.log("SERVIDOR INICIANDO...");
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 import express from 'express';
 import cors from 'cors';
 import NodeCache from 'node-cache';
@@ -41,6 +49,7 @@ const broadcast = (data) => {
 const POLLING_INTERVAL_MS = 30000; // 30 seconds
 
 const pollGoogleSheets = async () => {
+    console.log("Executando polling...");
     try {
         console.log("\n[Loop] Verificando atualizações no Google Sheets...");
         const newData = await fetchDashboardData();
@@ -52,11 +61,13 @@ const pollGoogleSheets = async () => {
         const oldDataStr = oldData ? JSON.stringify(oldData.items) : null;
 
         if (!oldData || oldDataStr !== newDataStr) {
-            console.log("[Loop] 🔄 ALTERAÇÃO DETECTADA! Atualizando cache e notificando clientes.");
+            console.log("[Loop] DADOS ALTERADOS");
             dataCache.set(CACHE_KEY, newData);
+            console.log("[Polling] Dados processados. Preparando broadcast...");
             broadcast({ type: 'UPDATE', payload: newData });
+            console.log("[Polling] BROADCAST ENVIADO");
         } else {
-            console.log("[Loop] ✅ Sem alterações significativas nos dados.");
+            console.log("[Loop] SEM ALTERAÇÃO");
         }
     } catch (error) {
         console.error("[Loop] ❌ Falha crítica no ciclo de polling:", error.message);

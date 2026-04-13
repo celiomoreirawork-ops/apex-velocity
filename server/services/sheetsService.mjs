@@ -7,14 +7,13 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function fetchWithRetry(url, maxRetries = 3) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            // Node 18+ possui fetch nativo
             const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            return await response.text(); // Retorna CSV como texto puro
+            return response; // Return response object, not text
         } catch (error) {
             if (attempt < maxRetries) {
                 const backoffDelay = attempt * 2000; // 2s, 4s, 6s...
@@ -34,29 +33,52 @@ export async function fetchDashboardData() {
         throw new Error("SPREADSHEET_ID não definido no arquivo .env");
     }
 
-    // URL Mágica de exportação CSV pública do Google Sheets
-    let csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
-    if (process.env.SHEET_GID) {
-        csvUrl += `&gid=${process.env.SHEET_GID}`;
+    let csvUrl = '';
+    if (SPREADSHEET_ID.startsWith('http')) {
+        csvUrl = SPREADSHEET_ID;
+    } else {
+        csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+        if (process.env.SHEET_GID) {
+            csvUrl += `&gid=${process.env.SHEET_GID}`;
+        }
     }
 
-    console.log(`[Polling] Iniciando busca de dados via CSV: ${csvUrl}`);
+    // Add cache buster to prevent stale CSV results
+    const cacheBuster = `t=${Date.now()}`;
+    csvUrl += (csvUrl.includes('?') ? '&' : '?') + cacheBuster;
+
+    console.log(`[Polling] INÍCIO FETCH: ${csvUrl}`);
 
     // 1. Buscar a string CSV pela URL com resiliência
     let csvString;
     try {
-        csvString = await fetchWithRetry(csvUrl);
-        console.log(`[Polling] CSV recebido com sucesso (${csvString.length} bytes)`);
+        console.log(`[Polling] Fetching CSV...`);
+        const fetchRes = await fetchWithRetry(csvUrl);
+        csvString = fetchRes.text ? await fetchRes.text() : fetchRes;
+        console.log(`[Polling] FETCH OK. CSV recebido! Tamanho: ${csvString.length} bytes.`);
+        
+        // Verifica se a página retornada não é um erro HTML de login/permissões
+        if (csvString.trim().toLowerCase().startsWith('<!doctype html') || csvString.trim().toLowerCase().startsWith('<html')) {
+            throw new Error('A resposta é um documento HTML (provavelmente bloqueio de permissões). Certifique-se de que a planilha está como "Qualquer pessoa com o link".');
+        }
+
+        // Headers
+        if(fetchRes.headers) {
+            console.log(`[Polling] Headers Content-Type: ${fetchRes.headers.get('content-type')}`);
+        }
+
+        // Preview local para debug
+        console.log(`[Polling] Preview do conteúdo (primeiros 200 chars): ${csvString.substring(0, 200).replace(/\n/g, ' ')}...`);
     } catch (error) {
-        console.error(`[Polling] Erro fatal ao buscar CSV: ${error.message}`);
+        console.error(`[Polling] Erro federal ao buscar CSV: ${error.message}`);
         throw error;
     }
 
     // 2. Usar PapaParse para transformar CSV em vetor de Objetos
-    console.log(`[Polling] Iniciando parsing do CSV...`);
     const parsed = Papa.parse(csvString, {
         header: true,
-        skipEmptyLines: true
+        skipEmptyLines: true,
+        transformHeader: (h) => h.trim().replace(/^\uFEFF/, '') // Remove espaços e BOM
     });
     
     if (parsed.errors && parsed.errors.length > 0) {
@@ -64,7 +86,7 @@ export async function fetchDashboardData() {
     }
 
     const rows = parsed.data || [];
-    console.log(`[Polling] Parsing concluído. Total de linhas brutas: ${rows.length}`);
+    console.log(`[Polling] CSV PARSED. Total de linhas brutas: ${rows.length}`);
 
     // 3. Processa & Serializa
     console.log(`[Polling] Filtrando e formatando linhas...`);
