@@ -72,7 +72,7 @@ const KPIBlock = ({ label, value, isHighlight = false }) => (
     ),
   }}>
     <p style={sLabel}>{label}</p>
-    <p style={label === 'Best Seller' ? { ...sValue, fontSize: 16 } : sValue}>{value}</p>
+    <p style={sValue}>{value}</p>
   </div>
 );
 

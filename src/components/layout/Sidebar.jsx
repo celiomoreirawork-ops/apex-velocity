@@ -83,17 +83,12 @@ const NavButton = ({ id, label, icon, isActive, onClick }) => {
 export default function Sidebar({ activePage, onPageChange, status }) {
   return (
     <aside style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: 240,
-      height: '100vh',
-      background: C.gray900,
-      padding: 24,
+      width: '100%',
+      height: '100%',
+      paddingTop: 24,
+      paddingBottom: 24,
       display: 'flex',
       flexDirection: 'column',
-      zIndex: 40,
-      borderRight: `2px solid #1A1B23`, // Visual separator between menu and content
     }}>
       {/* Logo Container */}
       <div style={{ marginBottom: 48, display: 'flex', justifyContent: 'center' }}>
@@ -143,9 +138,7 @@ export default function Sidebar({ activePage, onPageChange, status }) {
         alignItems: 'center',
         gap: 24,
         paddingBottom: 24,
-        marginLeft: -24,
-        marginRight: -24,
-        width: 'calc(100% + 48px)'
+        width: '100%',
       }}>
         {/* Sync indicator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
