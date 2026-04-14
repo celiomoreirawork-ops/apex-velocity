@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion as Motion } from 'framer-motion';
 import anime from 'animejs';
+import { createPortal } from 'react-dom';
 
 const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF', blue200: '#94D1FF', blue700: '#0523E5' };
 
@@ -92,6 +93,20 @@ function DonutChart({ title, data, total, getColor }) {
                   transformOrigin: `${CX}px ${CY}px`
                 }}
                 onMouseEnter={() => setHovered(s.label)}
+                onMouseMove={(e) => {
+                  const t = document.getElementById('mix-tooltip');
+                  if (t) {
+                    const tw = t.offsetWidth || 120;
+                    const th = t.offsetHeight || 40;
+                    let left = e.clientX + 20;
+                    let top = e.clientY;
+                    if (left + tw + 16 > window.innerWidth) left = e.clientX - tw - 20;
+                    if (top + th > window.innerHeight) top = window.innerHeight - th - 16;
+                    if (top < 16) top = 16;
+                    t.style.left = `${left}px`;
+                    t.style.top = `${top}px`;
+                  }
+                }}
                 onMouseLeave={() => setHovered(null)}
               />
             );
@@ -115,6 +130,33 @@ function DonutChart({ title, data, total, getColor }) {
       </div>
       <p style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', marginTop: 8 }}>{title}</p>
       <Legend entries={data} getColor={(label, i) => getColor(label, i)} />
+      
+      {createPortal(
+        <div
+          id="mix-tooltip"
+          style={{
+            position: 'fixed',
+            zIndex: 10000,
+            background: '#24252E',
+            color: '#0523E5',
+            fontSize: 16,
+            fontWeight: 600,
+            padding: '8px 20px',
+            borderRadius: 9999,
+            pointerEvents: 'none',
+            opacity: hovered ? 1 : 0,
+            visibility: hovered ? 'visible' : 'hidden',
+            transition: 'opacity 0.1s ease-out',
+            transform: 'translateY(-50%)',
+            whiteSpace: 'nowrap',
+            border: '1px solid rgba(88,91,108,0.20)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          }}
+        >
+          {hovered}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

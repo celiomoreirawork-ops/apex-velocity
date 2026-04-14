@@ -77,36 +77,38 @@ export function useDashboardAggregations(rawData) {
     };
   }, [sales, hasData]);
 
-  // 3. Top Seller Specific Data
-  const topSellerStats = useMemo(() => {
-    if (!hasData || !aggregations.topSeller) return null;
+  // 3. Top Sellers Data (Top 3)
+  const top3SellersStats = useMemo(() => {
+    if (!hasData) return [];
     
-    const name = aggregations.topSeller[0];
-    const items = sales.filter(s => s.seller === name);
-    
-    const biggestSingleSale = items.length 
-      ? [...items].sort((a, b) => b.revenue - a.revenue)[0] 
-      : null;
-      
-    const totalCars = items.reduce((sum, s) => sum + s.qty, 0);
-    const carsByClass = items.reduce((acc, s) => {
-      acc[s.type] = (acc[s.type] || 0) + s.qty;
-      return acc;
-    }, {});
+    return Object.entries(aggregations.sellerTotals)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name, revenue]) => {
+        const items = sales.filter(s => s.seller === name);
+        const biggestSingleSale = items.length 
+          ? [...items].sort((a, b) => b.revenue - a.revenue)[0] 
+          : null;
+        const totalCars = items.reduce((sum, s) => sum + s.qty, 0);
+        const carsByClass = items.reduce((acc, s) => {
+          acc[s.type] = (acc[s.type] || 0) + s.qty;
+          return acc;
+        }, {});
 
-    return {
-      name,
-      revenue: aggregations.topSeller[1],
-      biggestSingleSale,
-      totalCars,
-      carsByClass
-    };
-  }, [sales, hasData, aggregations.topSeller]);
+        return {
+          name,
+          revenue,
+          biggestSingleSale,
+          totalCars,
+          carsByClass
+        };
+      });
+  }, [sales, hasData, aggregations.sellerTotals]);
 
   return {
     sales,
     hasData,
     ...aggregations,
-    topSellerStats
+    top3SellersStats
   };
 }

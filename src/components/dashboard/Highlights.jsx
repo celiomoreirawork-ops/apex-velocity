@@ -44,7 +44,7 @@ const CARDS = [
 ];
 
 const IconAward = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#0523E5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
     <circle cx="12" cy="8" r="6" />
     <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
   </svg>

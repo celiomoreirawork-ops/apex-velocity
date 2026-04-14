@@ -182,14 +182,14 @@ export default function RankingChart({ salesData = [] }) {
       {createPortal(
         <div
           id="ranking-tooltip"
-          className={`fixed z-[9999] p-5 shadow-2xl backdrop-blur-xl pointer-events-none`}
+          className={`fixed z-[9999] p-5 shadow-2xl backdrop-blur-md pointer-events-none`}
           style={{ 
             width: 240, 
             top: -999, 
             left: -999, 
-            background: '#24252E', 
+            background: 'rgba(36, 37, 46, 0.75)', 
             borderRadius: 16,
-            border: '1px solid rgba(88,91,108,0.20)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             opacity: hoveredData ? 1 : 0,
             visibility: hoveredData ? 'visible' : 'hidden',
             transition: 'opacity 0.15s ease-out',

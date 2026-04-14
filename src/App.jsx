@@ -23,7 +23,7 @@ export default function App() {
   useCardShine();
 
   const { data: rawData, totais, sheetTitle, status } = useDashboardData();
-  const { sales, topSellerStats, leaderVolume, topModel, biggestSale } = useDashboardAggregations(rawData);
+  const { sales, top3SellersStats, leaderVolume, topModel, biggestSale } = useDashboardAggregations(rawData);
 
   const [targetConfig, setTargetConfig] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.META_MENSAL);
@@ -55,26 +55,14 @@ export default function App() {
       {/* Row 1 — Executive highlight + Monthly goal */}
       <div className="dashboard-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: GAP }}>
         <div style={{ minHeight: 360 }}>
-          {topSellerStats && (() => {
-            const top3Sellers = Object.entries(
-              sales.reduce((acc, s) => { acc[s.seller] = (acc[s.seller] || 0) + s.revenue; return acc; }, {})
-            ).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([name]) => name);
-            return (
-              <TopSellerCard
-                name={topSellerStats.name}
-                revenue={formatBRL(topSellerStats.revenue)}
-                biggestSaleModel={topSellerStats.biggestSingleSale?.model}
-                biggestSaleVal={topSellerStats.biggestSingleSale ? formatBRL(topSellerStats.biggestSingleSale.revenue) : undefined}
-                biggestSaleQty={topSellerStats.biggestSingleSale?.qty}
-                totalCars={topSellerStats.totalCars}
-                carsByClass={topSellerStats.carsByClass}
-                isVolumeLeader={topSellerStats.totalCars === leaderVolume[1]}
-                isBiggestSaleLeader={topSellerStats.biggestSingleSale?.revenue === biggestSale?.revenue}
-                salesData={sales}
-                top3Sellers={top3Sellers}
-              />
-            );
-          })()}
+          {top3SellersStats.length > 0 && (
+            <TopSellerCard
+              sellersStats={top3SellersStats}
+              leaderVolumeId={leaderVolume[0]}
+              biggestSaleId={biggestSale?.revenue}
+              salesData={sales}
+            />
+          )}
         </div>
         <div style={{ minHeight: 360 }}>
           <MetaVisualization
