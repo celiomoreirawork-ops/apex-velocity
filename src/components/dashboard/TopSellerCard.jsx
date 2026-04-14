@@ -3,20 +3,20 @@ import anime from 'animejs';
 import { formatCurrency } from '../../utils/formatters';
 
 const C = {
-  white:    '#FFFFFF',
-  gray200:  '#D0D1D6',
-  gray400:  '#91939F',
-  gray600:  '#585B6C',
-  blue200:  '#94D1FF',
-  blue400:  '#5B9FFF',
-  blue700:  '#0523E5',
-  divider:  'rgba(88,91,108,0.20)',
-  tag:      'rgba(88,91,108,0.30)',
+  white: '#FFFFFF',
+  gray200: '#D0D1D6',
+  gray400: '#91939F',
+  gray600: '#585B6C',
+  blue200: '#94D1FF',
+  blue400: '#5B9FFF',
+  blue700: '#0523E5',
+  divider: 'rgba(88,91,108,0.20)',
+  tag: 'rgba(88,91,108,0.30)',
 };
 
 const sLabel = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
 const sName = { fontSize: 16, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', textAlign: 'center' };
-const sValue = { fontSize: 24, fontWeight: 600, color: C.white,  letterSpacing: '-0.02em', lineHeight: 1.1 };
+const sValue = { fontSize: 24, fontWeight: 600, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
 const sValueSmall = { fontSize: 18, fontWeight: 600, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
 
 const IconUser = () => (
@@ -71,9 +71,9 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
     <div className="standard-card" style={{ flex: 1.4, display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <IconUser />
-        <h3 style={{ fontSize: 13, fontWeight: 500, color: C.gray200, letterSpacing: '-0.02em' }}>1º Lugar · Performance</h3>
+        <h3 style={{ fontSize: 13, fontWeight: 500, color: C.gray200, letterSpacing: '-0.02em' }}>Executivos de Vendas</h3>
       </div>
-      
+
       <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
         <Avatar name={data.name} size={120} />
         <div style={{ flex: 1 }}>
@@ -86,7 +86,7 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
       </div>
 
       <div className="card-divider" />
-      
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div>
           <p style={sLabel}>Maior venda única</p>
@@ -100,7 +100,7 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
           <p style={{ ...sValueSmall, marginTop: 4 }}>{data.totalCars} <span style={{ fontSize: 12, fontWeight: 300 }}>unidades</span></p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
             {vehicleTags.slice(0, 3).map(([model, qty]) => (
-                <span key={model} style={{ fontSize: 9, background: C.tag, padding: '2px 8px', borderRadius: 9999, color: C.white }}>{model}</span>
+              <span key={model} style={{ fontSize: 9, background: C.tag, padding: '2px 8px', borderRadius: 9999, color: C.white }}>{model}</span>
             ))}
           </div>
         </div>
@@ -108,16 +108,16 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
 
       <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
         {isVolumeLeader && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
-                <IconTrophy size={12} />
-                <span style={{ fontSize: 10, color: C.white }}>Líder de Volume</span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
+            <IconTrophy size={12} />
+            <span style={{ fontSize: 10, color: C.white }}>Líder de Volume</span>
+          </div>
         )}
         {isBiggestSaleLeader && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
-                <IconTrophy size={12} />
-                <span style={{ fontSize: 10, color: C.white }}>Maior Venda</span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
+            <IconTrophy size={12} />
+            <span style={{ fontSize: 10, color: C.white }}>Maior Venda</span>
+          </div>
         )}
       </div>
     </div>
@@ -127,57 +127,57 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
 const SecondaryExecutiveCard = ({ data, rank }) => (
   <div className="standard-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ fontSize: 11, fontWeight: 500, color: C.blue400 }}>{rank}º Lugar</p>
-        <Avatar name={data.name} size={48} />
+      <p style={{ fontSize: 11, fontWeight: 500, color: C.blue400 }}>{rank}º Lugar</p>
+      <Avatar name={data.name} size={48} />
     </div>
-    
+
     <div>
-        <h3 style={{ ...sName, textAlign: 'left', fontSize: 14 }}>{data.name}</h3>
+      <h3 style={{ ...sName, textAlign: 'left', fontSize: 14 }}>{data.name}</h3>
     </div>
 
     <div className="card-divider" />
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div>
-            <p style={sLabel}>Receita total</p>
-            <p style={{ ...sValueSmall, fontSize: 16 }}>{formatCurrency(data.revenue)}</p>
-        </div>
-        <div>
-            <p style={sLabel}>Maior venda única</p>
-            <p style={{ fontSize: 13, fontWeight: 500, color: C.white }}>{formatCurrency(data.biggestSingleSale?.revenue || 0)}</p>
-            <p style={{ fontSize: 10, color: C.gray200 }}>
-                {data.biggestSingleSale?.qty} un. · {data.biggestSingleSale?.model}
-            </p>
-        </div>
+      <div>
+        <p style={sLabel}>Receita total</p>
+        <p style={{ ...sValueSmall, fontSize: 16 }}>{formatCurrency(data.revenue)}</p>
+      </div>
+      <div>
+        <p style={sLabel}>Maior venda única</p>
+        <p style={{ fontSize: 13, fontWeight: 500, color: C.white }}>{formatCurrency(data.biggestSingleSale?.revenue || 0)}</p>
+        <p style={{ fontSize: 10, color: C.gray200 }}>
+          {data.biggestSingleSale?.qty} un. · {data.biggestSingleSale?.model}
+        </p>
+      </div>
     </div>
   </div>
 );
 
 export default function TopSellerCard({ sellersStats = [], salesData, leaderVolumeId, biggestSaleId }) {
-    if (!sellersStats.length) return null;
+  if (!sellersStats.length) return null;
 
-    return (
-        <div style={{ display: 'flex', gap: 8, height: '100%' }}>
-            <MainExecutiveCard 
-                data={sellersStats[0]} 
-                salesData={salesData}
-                isVolumeLeader={sellersStats[0].name === leaderVolumeId}
-                isBiggestSaleLeader={sellersStats[0].biggestSingleSale?.revenue === biggestSaleId}
-            />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {sellersStats[1] && (
-                    <SecondaryExecutiveCard 
-                        data={sellersStats[1]} 
-                        rank={2}
-                    />
-                )}
-                {sellersStats[2] && (
-                    <SecondaryExecutiveCard 
-                        data={sellersStats[2]} 
-                        rank={3}
-                    />
-                )}
-            </div>
-        </div>
-    );
+  return (
+    <div style={{ display: 'flex', gap: 8, height: '100%' }}>
+      <MainExecutiveCard
+        data={sellersStats[0]}
+        salesData={salesData}
+        isVolumeLeader={sellersStats[0].name === leaderVolumeId}
+        isBiggestSaleLeader={sellersStats[0].biggestSingleSale?.revenue === biggestSaleId}
+      />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {sellersStats[1] && (
+          <SecondaryExecutiveCard
+            data={sellersStats[1]}
+            rank={2}
+          />
+        )}
+        {sellersStats[2] && (
+          <SecondaryExecutiveCard
+            data={sellersStats[2]}
+            rank={3}
+          />
+        )}
+      </div>
+    </div>
+  );
 }
