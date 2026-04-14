@@ -72,9 +72,9 @@ const KPIBlock = ({ label, value, isHighlight = false }) => (
 );
 
 export default function MetaVisualization({ percent, rawRealized, rawTarget, onTargetChange, avgTicket, topModel }) {
-  const barRef = useRef(null);
   const containerRef = useRef(null);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [animatedGaugePercent, setAnimatedGaugePercent] = useState(0);
   const [isEditingMeta, setIsEditingMeta] = useState(false);
   const [editMetaText, setEditMetaText] = useState(formatMetaDisplay(rawTarget || 2000000));
 
@@ -93,9 +93,22 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
   }, [percent]);
 
   useEffect(() => {
-    if (!hasAnimated || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const tw = (Math.min(percent, 175) / 175) * 100;
-    const anim = anime({ targets: barRef.current, width: ['0%', `${tw}%`], duration: 1800, easing: 'easeOutQuart' });
+    if (!hasAnimated) return;
+    const cappedPercent = Math.min(percent, 175);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const frame = window.requestAnimationFrame(() => setAnimatedGaugePercent(cappedPercent));
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    const animationState = { value: 0 };
+    const anim = anime({
+      targets: animationState,
+      value: cappedPercent,
+      duration: 1200,
+      easing: 'easeOutExpo',
+      update: () => setAnimatedGaugePercent(animationState.value),
+    });
+
     return () => { anim.pause(); };
   }, [hasAnimated, percent]);
 
@@ -111,6 +124,11 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
 
   const diff = rawRealized - rawTarget;
   const isSurplus = diff > 0;
+  const normalizedGauge = Math.min(animatedGaugePercent / 175, 1);
+  const gaugeRadius = 64;
+  const gaugeLength = Math.PI * gaugeRadius;
+  const gaugeOffset = gaugeLength * (1 - normalizedGauge);
+  const showOverTargetGlow = percent > 100;
 
   return (
     <div
@@ -150,27 +168,97 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         <KPIBlock label="Best Seller"                          value={topModel || '--'} />
       </div>
 
-      {/* Progress bar */}
-      <div style={{ position: 'relative', marginBottom: 24 }}>
-        <div style={{ height: 16, width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 9999, overflow: 'hidden' }}>
-          <div
-            ref={barRef}
+      {/* Dual arc telemetry gauge */}
+      <div
+        style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 8,
+          padding: '12px 8px',
+        }}
+      >
+        <svg
+          viewBox="0 0 220 170"
+          role="img"
+          aria-label={`Faturamento atingido: ${percent.toFixed(0)}%`}
+          style={{ width: '100%', maxWidth: 280, height: 'auto', overflow: 'visible' }}
+        >
+          <defs>
+            <linearGradient id="goalGaugeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stopColor="#5B9FFF" />
+              <stop offset="28.57%" stopColor="#5B9FFF" />
+              <stop offset="57.14%" stopColor="#0523E5" />
+              <stop offset="100%" stopColor="#D4AF37" />
+            </linearGradient>
+          </defs>
+
+          <path
+            d="M 74 148 A 64 64 0 0 1 74 20"
+            stroke="rgba(255,255,255,0.12)"
+            strokeWidth="8"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <path
+            d="M 146 148 A 64 64 0 0 0 146 20"
+            stroke="rgba(255,255,255,0.12)"
+            strokeWidth="8"
+            strokeLinecap="round"
+            fill="none"
+          />
+
+          <path
+            d="M 74 148 A 64 64 0 0 1 74 20"
+            stroke="url(#goalGaugeGradient)"
+            strokeWidth="8"
+            strokeLinecap="round"
+            fill="none"
+            strokeDasharray={gaugeLength}
+            strokeDashoffset={gaugeOffset}
             style={{
-              height: '100%', width: '0%', borderRadius: 9999,
-              background: 'linear-gradient(90deg, #1B0056 0%, #0523E5 100%)', // Degradê 2 (Dark -> Light)
-              transition: 'none',
+              filter: showOverTargetGlow ? `drop-shadow(0 0 ${6 + ((Math.min(percent, 175) - 100) / 75) * 8}px rgba(212,175,55,0.55))` : 'none',
             }}
           />
-        </div>
-        <div style={{ position: 'absolute', top: '100%', marginTop: 8, width: '100%', pointerEvents: 'none' }}>
-          {[0, 50, 100, 125, 150, 175].map(val => (
-            <span key={val} style={{
-              position: 'absolute',
-              left: `${(val / 175) * 100}%`,
-              transform: 'translateX(-50%)',
-              fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal'
-            }}>{val}%</span>
-          ))}
+          <path
+            d="M 146 148 A 64 64 0 0 0 146 20"
+            stroke="url(#goalGaugeGradient)"
+            strokeWidth="8"
+            strokeLinecap="round"
+            fill="none"
+            strokeDasharray={gaugeLength}
+            strokeDashoffset={gaugeOffset}
+            style={{
+              filter: showOverTargetGlow ? `drop-shadow(0 0 ${6 + ((Math.min(percent, 175) - 100) / 75) * 8}px rgba(212,175,55,0.55))` : 'none',
+            }}
+          />
+        </svg>
+
+        <div
+          style={{
+            position: 'absolute',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: '"DS-Digital", "Share Tech Mono", "JetBrains Mono", monospace',
+              fontSize: 32,
+              letterSpacing: '2px',
+              color: C.white,
+              lineHeight: 1,
+            }}
+          >
+            {`${percent.toFixed(0)}%`}
+          </span>
+          <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.60)', textAlign: 'center', lineHeight: 1.25, marginTop: 6 }}>
+            Faturamento <br /> atingido
+          </p>
         </div>
       </div>
 
