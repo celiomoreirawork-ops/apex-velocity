@@ -50,8 +50,8 @@ const FilterSelect = ({ label, value, onChange, options, placeholder }) => (
       onChange={e => onChange(e.target.value)}
       style={{
         fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em',
-        background: '#24252E', border: 'none', borderRadius: 6,
-        padding: '6px 10px', outline: 'none', cursor: 'pointer', width: '100%',
+        background: '#24252E', border: 'none', borderRadius: 9999,
+        padding: '6px 16px', outline: 'none', cursor: 'pointer', width: '100%',
       }}
     >
       <option value="">{placeholder}</option>
@@ -207,9 +207,9 @@ export default function SalesTable({ salesData }) {
 
   const btnStyle = {
     display: 'flex', alignItems: 'center', gap: 8,
-    padding: '8px 14px',
+    padding: '8px 18px',
     background: 'rgba(255,255,255,0.05)',
-    borderRadius: 8, border: 'none', cursor: 'pointer',
+    borderRadius: 9999, border: 'none', cursor: 'pointer',
     fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em',
   };
 
@@ -289,7 +289,9 @@ export default function SalesTable({ salesData }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{item.seller}</td>
+                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>
+                    {item.seller.split(' ').slice(0, 2).join(' ')}
+                  </td>
                   <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>{item.model}</td>
                   <td style={{ padding: '14px 20px' }}>
                     <span style={{ display: 'inline-block', padding: '3px 8px', borderRadius: 9999, background: 'rgba(255,255,255,0.05)', fontSize: 9, fontWeight: 300, color: C.gray200, letterSpacing: 'normal' }}>

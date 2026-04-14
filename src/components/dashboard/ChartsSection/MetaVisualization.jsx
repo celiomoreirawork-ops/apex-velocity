@@ -153,14 +153,14 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         <KPIBlock label="Fat. atingido"                        value={`${percent.toFixed(0)}%`} />
         {/* New subcards: Ticket Médio + Best Seller */}
         <div style={{
-          background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 16,
+          background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 16,
           display: 'flex', flexDirection: 'column', gap: 4,
         }}>
           <p style={sLabel}>Ticket Médio</p>
           <p style={sValue}>{avgTicket || '--'}</p>
         </div>
         <div style={{
-          background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 16,
+          background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 16,
           display: 'flex', flexDirection: 'column', gap: 4,
         }}>
           <p style={sLabel}>Best Seller</p>

@@ -97,6 +97,12 @@ const VehicleTag = ({ model, qty }) => (
   </div>
 );
 
+const formatName = (name) => {
+  if (!name) return '';
+  const parts = name.trim().split(/\s+/);
+  return parts.length > 2 ? `${parts[0]} ${parts[1]}` : name;
+};
+
 const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeader }) => {
   const vehicleTags = getVehicleTags(salesData, data.name);
   return (
@@ -112,10 +118,10 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
       <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
         <Avatar name={data.name} size={120} showRank1Badge />
         <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{data.name}</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{formatName(data.name)}</h2>
           <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
             <p style={sLabel}>Receita total acumulada</p>
-            <p className="text-large" style={{ fontSize: 32, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>{formatCurrency(data.revenue)}</p>
+            <p className="text-large" style={{ fontSize: 30, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>{formatCurrency(data.revenue)}</p>
           </div>
         </div>
       </div>
@@ -170,7 +176,7 @@ const SecondaryExecutiveCard = ({ data, rank }) => (
     </div>
 
     <div>
-      <h3 style={{ ...sName, textAlign: 'left', fontSize: 14 }}>{data.name}</h3>
+      <h3 style={{ ...sName, textAlign: 'left', fontSize: 14 }}>{formatName(data.name)}</h3>
     </div>
 
     <div className="card-divider" />

@@ -61,9 +61,15 @@ const IconAward = () => (
   </svg>
 );
 
+const normalize = (val) => {
+  if (typeof val !== 'string') return val;
+  const parts = val.trim().split(/\s+/);
+  return parts.length > 2 ? `${parts[0]} ${parts[1]}` : val;
+};
+
 const CARDS = [
-  { key: 'biggestSale',  label: 'Maior venda única',    CardIcon: IconTrophy,  getValue: p => p.biggestSaleVal,   getSub: p => `${p.biggestSaleQty || 1} ${(p.biggestSaleQty > 1) ? 'unidades' : 'unidade'} · ${p.biggestSale}` },
-  { key: 'leaderVolume', label: 'Líder de volume',      CardIcon: IconBar,     getValue: p => p.leaderVolume,     getSub: p => `${p.leaderVolumeCount} unidades` },
+  { key: 'biggestSale',  label: 'Maior venda única',    CardIcon: IconTrophy,  getValue: p => p.biggestSaleVal,   getSub: p => `${p.biggestSaleQty || 1} ${(p.biggestSaleQty > 1) ? 'unidades' : 'unidade'} · ${normalize(p.biggestSale)}` },
+  { key: 'leaderVolume', label: 'Líder de volume',      CardIcon: IconBar,     getValue: p => normalize(p.leaderVolume),     getSub: p => `${p.leaderVolumeCount} unidades` },
   { key: 'topModel',     label: 'Best-seller',          CardIcon: IconStar,    getValue: p => p.topModel,         getSub: p => `${p.topModelCount} veículos` },
   { key: 'avgTicket',    label: 'Ticket médio',         CardIcon: IconCard,    getValue: p => p.avgTicket,        getSub: () => 'Mix por transação' },
   { key: 'receitaAtual', label: 'Receita Atual',        CardIcon: IconDollar,  getValue: p => p.receitaAtual,     getSub: () => 'Receita acumulada' },
@@ -94,7 +100,7 @@ export default function Highlights({ biggestSale, biggestSaleVal, biggestSaleQty
               variants={itemConfig}
               style={{
                 background: 'rgba(255,255,255,0.03)',
-                borderRadius: 8,
+                borderRadius: 16,
                 padding: 16,
                 display: 'flex',
                 flexDirection: 'column',

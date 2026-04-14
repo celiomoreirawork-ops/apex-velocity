@@ -53,7 +53,8 @@ export default function RankingChart({ salesData = [] }) {
   const globalBiggestSale  = Math.max(...sorted.map(s => s[1].biggestSale));
 
   const fullData = sorted.map(([name, d]) => ({
-    name, revenue: d.revenue, qty: d.qty,
+    name: name.split(' ').slice(0, 2).join(' '),
+    revenue: d.revenue, qty: d.qty,
     biggestSale: d.biggestSale,
     vehicleTags: Object.entries(d.models).sort((a, b) => b[1] - a[1]),
     isVolumeLeader: d.qty === globalVolumeLeader && globalVolumeLeader > 0,
@@ -189,7 +190,7 @@ export default function RankingChart({ salesData = [] }) {
             top: -999, 
             left: -999, 
             background: 'rgba(36, 37, 46, 0.45)', 
-            borderRadius: 16,
+            borderRadius: 32,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             opacity: hoveredData ? 1 : 0,
             visibility: hoveredData ? 'visible' : 'hidden',
