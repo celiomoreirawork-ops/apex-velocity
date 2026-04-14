@@ -20,9 +20,15 @@
   --color-blue-700: #0523E5;
   --color-blue-800: #1A4195;
   --color-blue-900: #0C255C;
+  --color-blue-950: #1B0056;
 
   /* divider — only allowed "border" in the project */
   --divider: rgba(88, 91, 108, 0.20);
+
+  /* Official gradients — UI STANDARDS v3.2 */
+  --gradient-1: linear-gradient(90deg, #0523E5, #94D1FF);   /* versão clara */
+  --gradient-2: linear-gradient(90deg, #0523E5, #1B0056);   /* versão escura */
+  --gradient-2-vertical: linear-gradient(0deg, #1B0056, #0523E5); /* bars: bottom→top */
 }
 
 @layer base {

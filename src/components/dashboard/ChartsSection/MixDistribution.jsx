@@ -3,9 +3,10 @@ import { AnimatePresence, motion as Motion } from 'framer-motion';
 import anime from 'animejs';
 import { createPortal } from 'react-dom';
 
-const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF', blue200: '#94D1FF', blue700: '#0523E5' };
+const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF', blue200: '#94D1FF', blue700: '#0523E5', blue950: '#1B0056' };
 
-const BAR_GRADIENT = 'linear-gradient(60deg, #0523E5, #94D1FF)';
+// Degradê 2 — bottom→top for bars
+const BAR_GRADIENT = 'linear-gradient(0deg, #1B0056, #0523E5)';
 
 // Card title icon — 20x20px
 const IconPieChart = () => (
@@ -15,9 +16,9 @@ const IconPieChart = () => (
   </svg>
 );
 
-/* Donut segment colors — blue-spectrum, no warm hues */
-const SEG_CAT  = ['rgba(91,159,255,0.9)', 'rgba(91,159,255,0.6)', 'rgba(91,159,255,0.35)', 'rgba(91,159,255,0.18)', 'rgba(91,159,255,0.08)'];
-const SEG_SPEC = { 'Top de linha': 'rgba(91,159,255,0.85)', 'Entrada': 'rgba(148,209,255,0.55)', 'Básico': 'rgba(255,255,255,0.18)' };
+/* Donut segment colors — solid blue palette, NO gray, NO reduced opacity (100% opaque) */
+const SEG_CAT  = ['#0523E5', '#1B0056', '#5B9FFF', '#94D1FF', '#1A4195'];
+const SEG_SPEC = { 'Top de linha': '#0523E5', 'Entrada': '#5B9FFF', 'Básico': '#94D1FF' };
 
 function Legend({ entries, getColor }) {
   return (
@@ -214,9 +215,17 @@ export default function MixDistribution({ salesData }) {
       </div>
 
       <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBlock: 8 }}>
-        <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', pointerEvents: 'none', zIndex: 10 }}>
-          <p style={{ fontSize: 32, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>{totalUnits}</p>
-          <p style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal', marginTop: 4 }}>unidades vendidas</p>
+        <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', pointerEvents: 'none', zIndex: 10, textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{
+              fontSize: 32, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1,
+              color: '#94D1FF',
+              textShadow: '0 0 18px rgba(91,159,255,0.85), 0 0 40px rgba(5,35,229,0.55)',
+              fontFamily: 'Inter, sans-serif',
+            }}>{totalUnits}</span>
+            <span style={{ fontSize: 11, fontWeight: 500, color: C.gray200, letterSpacing: 'normal', fontFamily: 'Inter, sans-serif' }}>unidades</span>
+          </div>
+          <p style={{ fontSize: 11, fontWeight: 500, color: C.gray200, letterSpacing: 'normal', marginTop: 2, fontFamily: 'Inter, sans-serif' }}>vendidas</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, width: '100%', position: 'relative', zIndex: 0 }}>
           <DonutChart title="Categoria"     data={catEntries}  total={totalUnits} getColor={getCatColor} />

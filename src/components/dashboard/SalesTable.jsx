@@ -4,7 +4,6 @@ import { formatCurrency } from '../../utils/formatters';
 
 const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF' };
 
-
 // Card title icon — 20x20px
 const IconFileText = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
@@ -26,6 +25,16 @@ const IconDownload = () => (
     <line x1="12" y1="15" x2="12" y2="3" />
   </svg>
 );
+
+const IconPDF = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="9" y1="13" x2="15" y2="13" />
+    <line x1="9" y1="17" x2="15" y2="17" />
+  </svg>
+);
+
 const IconSort = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}>
     <polyline points="8 9 12 5 16 9" />
@@ -51,6 +60,128 @@ const FilterSelect = ({ label, value, onChange, options, placeholder }) => (
   </div>
 );
 
+// ── CSV Export ──────────────────────────────────────────────────────────────
+function exportCSV(rows) {
+  const headers = ['Executivo', 'Modelo', 'Classe', 'Especificação', 'Preço unit.', 'Qtd.', 'Valor total'];
+  const escape = (val) => {
+    const str = String(val ?? '');
+    return str.includes(',') || str.includes('"') || str.includes('\n')
+      ? `"${str.replace(/"/g, '""')}"`
+      : str;
+  };
+  const lines = [
+    headers.join(','),
+    ...rows.map(r => [
+      escape(r.seller),
+      escape(r.model),
+      escape(r.category),
+      escape(r.type),
+      escape(r.price),
+      escape(r.qty),
+      escape(r.revenue),
+    ].join(',')),
+  ];
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relatorio-vendas-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── PDF Export (pure HTML → print window) ──────────────────────────────────
+function exportPDF(rows) {
+  const fmt = (val) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }).format(val || 0);
+
+  const trRows = rows.map(r => `
+    <tr>
+      <td>${r.seller}</td>
+      <td>${r.model}</td>
+      <td>${r.category}</td>
+      <td>${r.type}</td>
+      <td class="right">${fmt(r.price)}</td>
+      <td class="right">${r.qty}</td>
+      <td class="right">${fmt(r.revenue)}</td>
+    </tr>`).join('');
+
+  const now = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  const totalRevenue = rows.reduce((acc, r) => acc + (r.revenue || 0), 0);
+  const totalQty = rows.reduce((acc, r) => acc + (r.qty || 0), 0);
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Relatório de Vendas — Apex Velocity</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #111;
+    background: #fff;
+    padding: 32px 40px;
+  }
+  .header { margin-bottom: 24px; border-bottom: 2px solid #0523E5; padding-bottom: 12px; }
+  .header h1 { font-size: 20px; font-weight: 700; color: #0523E5; letter-spacing: -0.02em; }
+  .header p { font-size: 11px; color: #555; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  thead tr { background: #0523E5; color: #fff; }
+  thead th { padding: 8px 10px; font-size: 10px; font-weight: 700; text-align: left; }
+  thead th.right { text-align: right; }
+  tbody tr:nth-child(even) { background: #f4f6fc; }
+  tbody tr:hover { background: #e8edff; }
+  tbody td { padding: 7px 10px; border-bottom: 1px solid #dde1ef; }
+  tbody td.right { text-align: right; }
+  .footer { margin-top: 16px; display: flex; justify-content: flex-end; gap: 32px; padding-top: 10px; border-top: 1px solid #ccc; }
+  .footer-item { display: flex; flex-direction: column; align-items: flex-end; }
+  .footer-item span:first-child { font-size: 10px; color: #555; }
+  .footer-item span:last-child { font-size: 14px; font-weight: 700; color: #0523E5; }
+  @media print { body { padding: 12px; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>Relatório de Vendas</h1>
+    <p>Apex Velocity · Gerado em ${now} · ${rows.length} registros</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Executivo</th>
+        <th>Modelo</th>
+        <th>Classe</th>
+        <th>Especificação</th>
+        <th class="right">Preço unit.</th>
+        <th class="right">Qtd.</th>
+        <th class="right">Valor total</th>
+      </tr>
+    </thead>
+    <tbody>${trRows}</tbody>
+  </table>
+  <div class="footer">
+    <div class="footer-item">
+      <span>Total de unidades</span>
+      <span>${totalQty}</span>
+    </div>
+    <div class="footer-item">
+      <span>Receita total</span>
+      <span>${fmt(totalRevenue)}</span>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 400);
+}
+
 export default function SalesTable({ salesData }) {
   const [filterSeller,   setFilterSeller]   = useState('');
   const [filterModel,    setFilterModel]     = useState('');
@@ -74,6 +205,14 @@ export default function SalesTable({ salesData }) {
     return filtered;
   }, [salesData, filterSeller, filterModel, filterCategory, filterType, sortOrder]);
 
+  const btnStyle = {
+    display: 'flex', alignItems: 'center', gap: 8,
+    padding: '8px 14px',
+    background: 'rgba(255,255,255,0.05)',
+    borderRadius: 8, border: 'none', cursor: 'pointer',
+    fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em',
+  };
+
   return (
     <div className="standard-card" style={{ overflow: 'hidden' }}>
       {/* Header */}
@@ -82,12 +221,24 @@ export default function SalesTable({ salesData }) {
           <IconFileText />
           <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>Relatório de Vendas</h3>
         </div>
-        <button
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(255,255,255,0.05)', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}
-        >
-          <IconDownload />
-          Exportar CSV
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            style={btnStyle}
+            onClick={() => exportCSV(filteredSales)}
+            title="Exportar tabela atual como CSV"
+          >
+            <IconDownload />
+            Exportar CSV
+          </button>
+          <button
+            style={btnStyle}
+            onClick={() => exportPDF(filteredSales)}
+            title="Exportar tabela atual como PDF"
+          >
+            <IconPDF />
+            Exportar PDF
+          </button>
+        </div>
       </div>
 
       {/* Divider */}

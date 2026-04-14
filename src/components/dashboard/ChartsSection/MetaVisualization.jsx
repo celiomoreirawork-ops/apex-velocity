@@ -14,6 +14,7 @@ const C = {
   gray600: '#585B6C',
   gray900: '#24252E',
   blue700: '#0523E5',
+  blue950: '#1B0056',
   divider: 'rgba(88,91,108,0.20)',
 };
 
@@ -42,8 +43,25 @@ const badgeMap = { ritmo: badgeRitmo, tracao: badgeTracao, avanco: badgeAvanco, 
 const formatFullBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
 
-const KPIBlock = ({ label, value }) => (
-  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
+const KPIBlock = ({ label, value, highlightBorder = false }) => (
+  <div style={{
+    borderRadius: 8,
+    padding: 16,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    ...(highlightBorder
+      ? {
+          background: 'rgba(255,255,255,0.04)',
+          border: '1.5px solid transparent',
+          backgroundClip: 'padding-box',
+          boxShadow: '0 0 0 1.5px #0523E5, 0 0 0 3px #1B0056',
+        }
+      : {
+          background: 'rgba(255,255,255,0.04)',
+        }
+    ),
+  }}>
     <p style={sLabel}>{label}</p>
     <p style={sValue}>{value}</p>
   </div>
@@ -110,7 +128,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
 
       {/* KPI grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <KPIBlock label="Meta do mês"                          value={formatFullBRL(rawTarget)} />
+        <KPIBlock label="Meta do mês"                          value={formatFullBRL(rawTarget)} highlightBorder />
         <KPIBlock label="Receita atual"                        value={formatFullBRL(rawRealized)} />
         <KPIBlock label={isSurplus ? 'Excedente' : 'Faltante'} value={(isSurplus ? '+' : '') + formatFullBRL(Math.abs(diff))} />
         <KPIBlock label="Fat. atingido"                        value={`${percent.toFixed(0)}%`} />
@@ -123,7 +141,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
             ref={barRef}
             style={{
               height: '100%', width: '0%', borderRadius: 9999,
-              background: 'linear-gradient(60deg, #0523E5, #94D1FF)',
+              background: 'linear-gradient(90deg, #0523E5, #94D1FF)',
               transition: 'none',
             }}
           />

@@ -93,6 +93,8 @@ export default function App() {
           topModel={topModel[0]}
           topModelCount={topModel[1]}
           avgTicket={formatBRL(totais.ticketMedio)}
+          receitaAtual={formatBRL(totais.receita)}
+          fatAtingido={`${progressPercent.toFixed(0)}%`}
         />
       </div>
 

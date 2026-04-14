@@ -3,10 +3,11 @@ import anime from 'animejs';
 import { formatShortBRL } from '../../../utils/formatters';
 import { createPortal } from 'react-dom';
 
-const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF', blue200: '#94D1FF', blue700: '#0523E5' };
+const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF', blue200: '#94D1FF', blue700: '#0523E5', blue950: '#1B0056' };
 
-const BAR_GRADIENT = 'linear-gradient(60deg, #0523E5, #94D1FF)';
-const BAR_HOVER    = 'linear-gradient(60deg, #0523E5, #94D1FF)'; // same, full opacity on hover
+// Degradê 2 — bottom: #1B0056 → top: #0523E5 (0deg = bottom to top in CSS)
+const BAR_GRADIENT = 'linear-gradient(0deg, #1B0056, #0523E5)';
+const BAR_HOVER    = 'linear-gradient(0deg, #1B0056, #0523E5)';
 
 // Card title icon — 20x20px
 const IconBarChart = () => (
