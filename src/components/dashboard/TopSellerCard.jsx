@@ -41,13 +41,14 @@ function getAvatarSrc(name) {
   return FEMALE_NAMES.includes(first) ? '/avatar-female.png' : '/avatar-male.png';
 }
 
-function Avatar({ name, size, showRank1Badge = false }) {
+function Avatar({ name, size, hasBorder = false, showRank1Badge = false }) {
   const src = getAvatarSrc(name);
   return (
     <div style={{ position: 'relative', flexShrink: 0, width: size, height: size }}>
       <div style={{
         width: size, height: size, borderRadius: '50%', overflow: 'hidden',
-        background: C.gray600, border: `2px solid ${C.blue700}`,
+        background: C.gray600, 
+        border: hasBorder ? `4px solid ${C.blue700}` : 'none',
       }}>
         <img src={src} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
       </div>
@@ -116,7 +117,7 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
       <p style={{ position: 'absolute', top: 24, right: 24, fontSize: 11, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em' }}>1º lugar</p>
 
       <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-        <Avatar name={data.name} size={120} showRank1Badge />
+        <Avatar name={data.name} size={120} hasBorder={true} showRank1Badge />
         <div style={{ flex: 1 }}>
           <h2 style={{ fontSize: 22, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{formatName(data.name)}</h2>
           <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>

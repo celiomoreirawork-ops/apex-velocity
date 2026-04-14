@@ -58,9 +58,10 @@ const formatFullBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
 
 // KPIBlock — "Meta do mês" gets Degradê 2. Others get plain surface.
+// KPIBlock — Subcard standard borderRadius updated to 16px
 const KPIBlock = ({ label, value, isHighlight = false }) => (
   <div style={{
-    borderRadius: 8,
+    borderRadius: 16, // Doubled from 8px
     padding: 16,
     display: 'flex',
     flexDirection: 'column',
@@ -71,7 +72,7 @@ const KPIBlock = ({ label, value, isHighlight = false }) => (
     ),
   }}>
     <p style={sLabel}>{label}</p>
-    <p style={sValue}>{value}</p>
+    <p style={label === 'Best Seller' ? { ...sValue, fontSize: 16 } : sValue}>{value}</p>
   </div>
 );
 
@@ -144,28 +145,14 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         </h3>
       </div>
 
-      {/* KPI grid — 3 cols × 2 rows = 6 subcards */}
+      {/* KPI grid — all 6 items follow the subcard standard */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-        {/* Meta do mês — the ONLY element with Degradê 2 */}
         <KPIBlock label="Meta do mês"                          value={formatFullBRL(rawTarget)} isHighlight />
         <KPIBlock label="Receita atual"                        value={formatFullBRL(rawRealized)} />
         <KPIBlock label={isSurplus ? 'Excedente' : 'Faltante'} value={(isSurplus ? '+' : '') + formatFullBRL(Math.abs(diff))} />
         <KPIBlock label="Fat. atingido"                        value={`${percent.toFixed(0)}%`} />
-        {/* New subcards: Ticket Médio + Best Seller */}
-        <div style={{
-          background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 16,
-          display: 'flex', flexDirection: 'column', gap: 4,
-        }}>
-          <p style={sLabel}>Ticket Médio</p>
-          <p style={sValue}>{avgTicket || '--'}</p>
-        </div>
-        <div style={{
-          background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: 16,
-          display: 'flex', flexDirection: 'column', gap: 4,
-        }}>
-          <p style={sLabel}>Best Seller</p>
-          <p style={{ ...sValue, fontSize: 16 }}>{topModel || '--'}</p>
-        </div>
+        <KPIBlock label="Ticket Médio"                         value={avgTicket || '--'} />
+        <KPIBlock label="Best Seller"                          value={topModel || '--'} />
       </div>
 
       {/* Progress bar */}
@@ -175,7 +162,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
             ref={barRef}
             style={{
               height: '100%', width: '0%', borderRadius: 9999,
-              background: 'linear-gradient(90deg, #0523E5, #94D1FF)',
+              background: 'linear-gradient(90deg, #1B0056 0%, #0523E5 100%)', // Degradê 2 (Dark -> Light)
               transition: 'none',
             }}
           />
