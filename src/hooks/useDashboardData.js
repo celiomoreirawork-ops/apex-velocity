@@ -8,7 +8,6 @@ export function useDashboardData() {
         items: []
     });
     const [status, setStatus] = useState('connecting...'); 
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         let eventSource = null;
@@ -26,7 +25,6 @@ export function useDashboardData() {
             eventSource.onopen = () => {
                 console.log("Conectado");
                 setStatus('live');
-                setError(null);
             };
 
             eventSource.onmessage = (event) => {
@@ -42,7 +40,6 @@ export function useDashboardData() {
                         setStatus('live');
                     } else if(parsed.type === 'ERROR') {
                         setStatus('error');
-                        setError(parsed.message);
                     }
                 } catch (err) {
                     console.error("[SSE] Erro ao processar payload:", err);
@@ -96,7 +93,6 @@ export function useDashboardData() {
         data: data.items, 
         totais: data.totais, 
         sheetTitle: data.sheetTitle,
-        status, 
-        error 
+        status
     };
 }

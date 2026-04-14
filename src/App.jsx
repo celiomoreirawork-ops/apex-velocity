@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import TopSellerCard from './components/dashboard/TopSellerCard';
-import KPICards from './components/dashboard/KPICards/KPICards';
 import RankingChart from './components/dashboard/ChartsSection/RankingChart';
 import MetaVisualization from './components/dashboard/ChartsSection/MetaVisualization';
 import MixDistribution from './components/dashboard/ChartsSection/MixDistribution';

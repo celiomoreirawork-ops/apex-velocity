@@ -7,7 +7,6 @@ const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '
 
 // Degradê 2 — bottom: #1B0056 → top: #0523E5 (0deg = bottom to top in CSS)
 const BAR_GRADIENT = 'linear-gradient(0deg, #1B0056, #0523E5)';
-const BAR_HOVER    = 'linear-gradient(0deg, #1B0056, #0523E5)';
 
 // Card title icon — 20x20px
 const IconBarChart = () => (
@@ -61,7 +60,6 @@ export default function RankingChart({ salesData = [] }) {
     isBiggestSaleLeader: d.biggestSale === globalBiggestSale && globalBiggestSale > 0
   }));
 
-  const dataKey = dataVals.join(',');
   const [hasAnimated, setHasAnimated] = useState(false);
   const containerRef = useRef(null);
 
@@ -91,7 +89,7 @@ export default function RankingChart({ salesData = [] }) {
       easing: 'cubicBezier(0.22, 1, 0.36, 1)',
       delay: anime.stagger(100)
     });
-  }, [hasAnimated, dataKey, maxVal]); 
+  }, [hasAnimated, dataVals, maxVal]); 
 
   const handleMouseMove = (e) => {
     const t = document.getElementById('ranking-tooltip');
