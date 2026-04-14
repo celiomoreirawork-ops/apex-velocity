@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import anime from 'animejs';
 import { parseMeta, formatMetaDisplay } from '../../../utils/formatters';
 
-import badgeRitmo    from '../../../assets/badge-ritmo.png';
-import badgeTracao   from '../../../assets/badge-tracao.png';
-import badgeAvanco   from '../../../assets/badge-avanco.png';
-import badgeLendario from '../../../assets/badge-lendario.png';
+import BadgeIcon from '../BadgeIcon';
 
 const C = {
   white:   '#FFFFFF',
@@ -51,8 +48,6 @@ const IconStar = () => (
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 );
-
-const badgeMap = { ritmo: badgeRitmo, tracao: badgeTracao, avanco: badgeAvanco, lendario: badgeLendario };
 
 const formatFullBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
@@ -132,8 +127,8 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
 
       {/* Achievement badge */}
       {percent >= 100 && currentLevel && (
-        <div style={{ position: 'absolute', top: 12, right: 12, padding: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 6, zIndex: 20, pointerEvents: 'none' }}>
-          <img src={badgeMap[currentLevel]} alt={currentLevel} style={{ width: 60, height: 60, objectFit: 'contain' }} />
+        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 20, pointerEvents: 'none' }}>
+          <BadgeIcon level={currentLevel} title={currentLevel} />
         </div>
       )}
 
