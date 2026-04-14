@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import anime from 'animejs';
-import { parseMeta, formatMetaDisplay } from '../../../utils/formatters';
+import { parseMeta, formatMetaDisplay, formatCurrency } from '../../../utils/formatters';
 
 import badgeRitmo    from '../../../assets/badge-ritmo.png';
 import badgeTracao   from '../../../assets/badge-tracao.png';
@@ -13,6 +13,7 @@ const C = {
   gray400: '#91939F',
   gray600: '#585B6C',
   gray900: '#24252E',
+  blue400: '#5B9FFF',
   blue700: '#0523E5',
   blue950: '#1B0056',
   divider: 'rgba(88,91,108,0.20)',
@@ -21,7 +22,7 @@ const C = {
 const sLabel = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
 const sValue = { fontSize: 20, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
 
-// Card title icon — 20x20px per spec
+// Card title icon
 const IconTarget = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
     <circle cx="12" cy="12" r="10" />
@@ -30,11 +31,24 @@ const IconTarget = () => (
   </svg>
 );
 
-// Edit icon — 16px per spec
 const IconEdit = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="1.5" stroke={C.gray400} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16, flexShrink: 0 }}>
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
+
+// Subcard icons — all blue-400 stroke, 1.5px
+const IconCard = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke={C.blue400} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
+    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+    <line x1="1" y1="10" x2="23" y2="10" />
+  </svg>
+);
+
+const IconStar = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke={C.blue400} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 );
 
@@ -43,22 +57,25 @@ const badgeMap = { ritmo: badgeRitmo, tracao: badgeTracao, avanco: badgeAvanco, 
 const formatFullBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
 
-// KPIBlock — no highlight border, plain surface
-const KPIBlock = ({ label, value }) => (
+// KPIBlock — "Meta do mês" gets Degradê 2. Others get plain surface.
+const KPIBlock = ({ label, value, isHighlight = false }) => (
   <div style={{
-    background: 'rgba(255,255,255,0.08)',
     borderRadius: 8,
     padding: 16,
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
+    ...(isHighlight
+      ? { background: 'linear-gradient(135deg, #0523E5 0%, #1B0056 100%)' }
+      : { background: 'rgba(255,255,255,0.04)' }
+    ),
   }}>
     <p style={sLabel}>{label}</p>
     <p style={sValue}>{value}</p>
   </div>
 );
 
-export default function MetaVisualization({ percent, rawRealized, rawTarget, onTargetChange }) {
+export default function MetaVisualization({ percent, rawRealized, rawTarget, onTargetChange, avgTicket, topModel }) {
   const barRef = useRef(null);
   const containerRef = useRef(null);
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -109,16 +126,12 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         gap: 16,
         height: '100%',
         position: 'relative',
-        /* Degradê 2 as card fill — no stroke/border */
-        background: 'linear-gradient(160deg, #0523E5 0%, #1B0056 100%)',
-        border: 'none',
-        boxShadow: 'none',
       }}
     >
 
       {/* Achievement badge */}
       {percent >= 100 && currentLevel && (
-        <div style={{ position: 'absolute', top: 12, right: 12, padding: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 6, zIndex: 20, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: 12, right: 12, padding: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 6, zIndex: 20, pointerEvents: 'none' }}>
           <img src={badgeMap[currentLevel]} alt={currentLevel} style={{ width: 60, height: 60, objectFit: 'contain' }} />
         </div>
       )}
@@ -131,42 +144,55 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         </h3>
       </div>
 
-      {/* KPI grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <KPIBlock label="Meta do mês"                          value={formatFullBRL(rawTarget)} />
+      {/* KPI grid — 3 cols × 2 rows = 6 subcards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+        {/* Meta do mês — the ONLY element with Degradê 2 */}
+        <KPIBlock label="Meta do mês"                          value={formatFullBRL(rawTarget)} isHighlight />
         <KPIBlock label="Receita atual"                        value={formatFullBRL(rawRealized)} />
         <KPIBlock label={isSurplus ? 'Excedente' : 'Faltante'} value={(isSurplus ? '+' : '') + formatFullBRL(Math.abs(diff))} />
         <KPIBlock label="Fat. atingido"                        value={`${percent.toFixed(0)}%`} />
+        {/* New subcards: Ticket Médio + Best Seller */}
+        <div style={{
+          background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 16,
+          display: 'flex', flexDirection: 'column', gap: 4,
+        }}>
+          <p style={sLabel}>Ticket Médio</p>
+          <p style={sValue}>{avgTicket || '--'}</p>
+        </div>
+        <div style={{
+          background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 16,
+          display: 'flex', flexDirection: 'column', gap: 4,
+        }}>
+          <p style={sLabel}>Best Seller</p>
+          <p style={{ ...sValue, fontSize: 16 }}>{topModel || '--'}</p>
+        </div>
       </div>
 
-      {/* Progress bar — Degradê 2 fill */}
+      {/* Progress bar */}
       <div style={{ position: 'relative', marginBottom: 24 }}>
-        <div style={{ height: 16, width: '100%', background: 'rgba(255,255,255,0.12)', borderRadius: 9999, overflow: 'hidden' }}>
+        <div style={{ height: 16, width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 9999, overflow: 'hidden' }}>
           <div
             ref={barRef}
             style={{
               height: '100%', width: '0%', borderRadius: 9999,
-              background: 'linear-gradient(90deg, #1B0056, #0523E5)',
-              border: '1px solid rgba(255,255,255,0.25)',
+              background: 'linear-gradient(90deg, #0523E5, #94D1FF)',
               transition: 'none',
             }}
           />
         </div>
-        {/* Milestones */}
         <div style={{ position: 'absolute', top: '100%', marginTop: 8, width: '100%', pointerEvents: 'none' }}>
           {[0, 50, 100, 125, 150, 175].map(val => (
             <span key={val} style={{
               position: 'absolute',
               left: `${(val / 175) * 100}%`,
               transform: 'translateX(-50%)',
-              fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: 'normal'
+              fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal'
             }}>{val}%</span>
           ))}
         </div>
       </div>
 
-      {/* Divider */}
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', width: '100%', border: 'none' }} />
+      <div className="card-divider" />
 
       {/* Edit meta action */}
       {isEditingMeta ? (
@@ -181,7 +207,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
             onKeyDown={handleKeyDown}
             style={{
               flex: 1,
-              background: 'rgba(0,0,0,0.3)',
+              background: C.gray900,
               color: C.white,
               fontFamily: 'Inter, sans-serif',
               fontWeight: 300,
@@ -189,7 +215,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
               letterSpacing: '-0.02em',
               borderRadius: 6,
               padding: '8px 12px',
-              border: '1px solid rgba(255,255,255,0.3)',
+              border: `1px solid ${C.blue700}`,
               outline: 'none',
             }}
           />
@@ -204,7 +230,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
           }}
         >
           <IconEdit />
-          <span style={{ fontSize: 11, fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.02em' }}>
+          <span style={{ fontSize: 11, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>
             Editar meta mensal
           </span>
         </button>

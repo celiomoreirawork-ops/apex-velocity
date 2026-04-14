@@ -50,7 +50,7 @@ const FilterSelect = ({ label, value, onChange, options, placeholder }) => (
       onChange={e => onChange(e.target.value)}
       style={{
         fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em',
-        background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 6,
+        background: '#24252E', border: 'none', borderRadius: 6,
         padding: '6px 10px', outline: 'none', cursor: 'pointer', width: '100%',
       }}
     >
@@ -321,6 +321,21 @@ export default function SalesTable({ salesData }) {
               </tr>
             )}
           </tbody>
+          {filteredSales.length > 0 && (
+            <tfoot>
+              <tr style={{ borderTop: '2px solid rgba(91,159,255,0.20)', background: 'rgba(255,255,255,0.02)' }}>
+                <td colSpan={5} style={{ padding: '14px 20px', fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>
+                  Total acumulado
+                </td>
+                <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', textAlign: 'right' }}>
+                  {filteredSales.reduce((acc, r) => acc + (r.qty || 0), 0)}
+                </td>
+                <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em', textAlign: 'right' }}>
+                  {formatCurrency(filteredSales.reduce((acc, r) => acc + (r.revenue || 0), 0))}
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
     </div>

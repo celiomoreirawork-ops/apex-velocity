@@ -5,23 +5,21 @@ import { createPortal } from 'react-dom';
 
 const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF', blue200: '#94D1FF', blue700: '#0523E5', blue950: '#1B0056' };
 
-// Degradê 2 for bar fills
-const BAR_GRADIENT = 'linear-gradient(90deg, #0523E5, #1B0056)';
+/* Unified color palette — Especificação colors as global standard for BOTH donuts */
+const UNIFIED_COLORS = ['#0523E5', '#5B9FFF', '#94D1FF', '#1A4195', '#1B0056'];
 
-// Card title icon — 20x20px
+// Bar gradient: dark (left) → light (right) — Design System standard
+const BAR_GRADIENT = 'linear-gradient(90deg, #1B0056, #0523E5)';
+
+const TOOLTIP_ID = 'mix-tooltip-shared';
+
+// Card title icon
 const IconPieChart = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
     <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
     <path d="M22 12A10 10 0 0 0 12 2v10z" />
   </svg>
 );
-
-/* Donut segment colors — solid blue palette, 100% opaque */
-const SEG_CAT  = ['#0523E5', '#1B0056', '#5B9FFF', '#94D1FF', '#1A4195'];
-const SEG_SPEC = { 'Top de linha': '#0523E5', 'Entrada': '#5B9FFF', 'Básico': '#94D1FF' };
-
-// Shared tooltip id — single portal instance managed by MixDistribution
-const TOOLTIP_ID = 'mix-tooltip-shared';
 
 function Legend({ entries, getColor }) {
   return (
@@ -36,26 +34,34 @@ function Legend({ entries, getColor }) {
   );
 }
 
+/* ── Modern Donut: rounded ends, 6px gap between slices, no stroke separators ── */
 function DonutChart({ title, data, total, getColor, tooltipId }) {
   const [hovered, setHovered] = useState(null);
   const [hasAnimated, setHasAnimated] = useState(false);
   const containerRef = useRef(null);
-  const SIZE = 140, CX = 70, CY = 70, R = 52, T = 20;
+  const SIZE = 140, CX = 70, CY = 70, R = 52, T = 18;
   const pathsRef = useRef([]);
+
+  // 6px gap between slices — convert px gap to angle
+  const GAP_PX = 6;
+  const GAP_ANGLE = GAP_PX / R;
 
   let slices = [];
   let currentAngle = -Math.PI / 2;
+  const totalGap = GAP_ANGLE * data.length;
+  const availableAngle = 2 * Math.PI - totalGap;
 
   for (let i = 0; i < data.length; i++) {
     const [label, value] = data[i];
-    const angle = total > 0 ? (value / total) * 2 * Math.PI : 0;
-    const start = currentAngle;
-    currentAngle += angle;
-    slices.push({ label, value, start, end: currentAngle, color: getColor(label, i) });
+    const angle = total > 0 ? (value / total) * availableAngle : 0;
+    const start = currentAngle + GAP_ANGLE / 2;
+    const end = start + angle;
+    currentAngle = end + GAP_ANGLE / 2;
+    slices.push({ label, value, start, end, color: getColor(label, i) });
   }
 
   const getPath = (s, e) => {
-    if (e - s >= 2 * Math.PI - 0.01) return `M ${CX} ${CY - R} A ${R} ${R} 0 1 1 ${CX - 0.01} ${CY - R}`;
+    if (e - s <= 0.01) return '';
     const x1 = CX + R * Math.cos(s), y1 = CY + R * Math.sin(s);
     const x2 = CX + R * Math.cos(e), y2 = CY + R * Math.sin(e);
     return `M ${x1} ${y1} A ${R} ${R} 0 ${(e - s) > Math.PI ? 1 : 0} 1 ${x2} ${y2}`;
@@ -101,7 +107,7 @@ function DonutChart({ title, data, total, getColor, tooltipId }) {
       <div style={{ position: 'relative', width: SIZE, height: SIZE }}>
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ width: SIZE, height: SIZE, strokeWidth: 'unset', fill: 'none', stroke: 'none' }}>
           {/* Track ring */}
-          <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={T} />
+          <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={T} />
           {slices.map((s, i) => {
             const pLen = 2 * Math.PI * R;
             return (
@@ -112,9 +118,7 @@ function DonutChart({ title, data, total, getColor, tooltipId }) {
                 fill="none"
                 stroke={s.color}
                 strokeWidth={T}
-                /* White hairline separator between slices — centered on edge */
-                strokeDasharray={pLen}
-                strokeDashoffset={pLen}
+                strokeLinecap="round"
                 style={{
                   strokeDasharray: pLen, strokeDashoffset: pLen,
                   opacity: hovered && hovered !== s.label ? 0.3 : 1,
@@ -122,32 +126,10 @@ function DonutChart({ title, data, total, getColor, tooltipId }) {
                   transition: 'opacity 0.2s, transform 0.2s',
                   cursor: 'pointer',
                   transformOrigin: `${CX}px ${CY}px`,
-                  paintOrder: 'stroke',
                 }}
                 onMouseEnter={() => setHovered(s.label)}
                 onMouseMove={(e) => moveTooltip(e, s.label)}
                 onMouseLeave={() => { setHovered(null); hideTooltip(); }}
-              />
-            );
-          })}
-          {/* White separator strokes — thin rings drawn on top at each slice boundary */}
-          {slices.map((s, i) => {
-            // Draw a short white radial line at each boundary for separation
-            const angle = s.start;
-            const innerR = R - T / 2;
-            const outerR = R + T / 2;
-            const x1 = CX + innerR * Math.cos(angle);
-            const y1 = CY + innerR * Math.sin(angle);
-            const x2 = CX + outerR * Math.cos(angle);
-            const y2 = CY + outerR * Math.sin(angle);
-            return (
-              <line
-                key={`sep-${i}`}
-                x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke="rgba(255,255,255,0.6)"
-                strokeWidth="1.5"
-                strokeLinecap="butt"
-                style={{ pointerEvents: 'none' }}
               />
             );
           })}
@@ -195,7 +177,6 @@ const BarTable = ({ entries, totalUnits, sectionTitle }) => (
                 <span style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', width: 80, textAlign: 'right' }}>{value}</span>
               </div>
             </div>
-            {/* Bar height: 12px */}
             <div style={{ width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 4, height: 12, overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${pct}%`, background: BAR_GRADIENT, borderRadius: 4, transition: 'width 2s ease' }} />
             </div>
@@ -217,8 +198,8 @@ export default function MixDistribution({ salesData }) {
   const catEntries  = Object.entries(catAgg).sort((a, b)  => b[1] - a[1]);
   const tierEntries = Object.entries(tierAgg).sort((a, b) => b[1] - a[1]);
 
-  const getCatColor  = (_, i) => SEG_CAT[i % SEG_CAT.length];
-  const getSpecColor = (label) => SEG_SPEC[label] || '#1A4195';
+  // Same color function for BOTH donuts — unified palette
+  const getUnifiedColor = (_, i) => UNIFIED_COLORS[i % UNIFIED_COLORS.length];
 
   return (
     <div className="standard-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -228,25 +209,24 @@ export default function MixDistribution({ salesData }) {
       </div>
 
       <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBlock: 8 }}>
+        {/* Central text: 3 lines — "64" / "unidades" / "vendidas" */}
         <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', pointerEvents: 'none', zIndex: 10, textAlign: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-            <span style={{
-              fontSize: 32, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1,
-              color: '#94D1FF',
-              textShadow: '0 0 18px rgba(91,159,255,0.85), 0 0 40px rgba(5,35,229,0.55)',
-              fontFamily: 'Inter, sans-serif',
-            }}>{totalUnits}</span>
-            <span style={{ fontSize: 11, fontWeight: 500, color: C.gray200, letterSpacing: 'normal', fontFamily: 'Inter, sans-serif' }}>unidades</span>
-          </div>
-          <p style={{ fontSize: 11, fontWeight: 500, color: C.gray200, letterSpacing: 'normal', marginTop: 2, fontFamily: 'Inter, sans-serif' }}>vendidas</p>
+          <span className="text-large" style={{
+            fontSize: 32, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1,
+            color: '#94D1FF',
+            textShadow: '0 0 18px rgba(91,159,255,0.85), 0 0 40px rgba(5,35,229,0.55)',
+            fontFamily: 'Inter, sans-serif',
+          }}>{totalUnits}</span>
+          <span style={{ fontSize: 11, fontWeight: 500, color: C.gray200, letterSpacing: 'normal', marginTop: 4, fontFamily: 'Inter, sans-serif' }}>unidades</span>
+          <span style={{ fontSize: 11, fontWeight: 500, color: C.gray200, letterSpacing: 'normal', marginTop: 1, fontFamily: 'Inter, sans-serif' }}>vendidas</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, width: '100%', position: 'relative', zIndex: 0 }}>
-          <DonutChart title="Categoria"     data={catEntries}  total={totalUnits} getColor={getCatColor}  tooltipId={TOOLTIP_ID} />
-          <DonutChart title="Especificação" data={tierEntries} total={totalUnits} getColor={getSpecColor} tooltipId={TOOLTIP_ID} />
+          <DonutChart title="Categoria"     data={catEntries}  total={totalUnits} getColor={getUnifiedColor} tooltipId={TOOLTIP_ID} />
+          <DonutChart title="Especificação" data={tierEntries} total={totalUnits} getColor={getUnifiedColor} tooltipId={TOOLTIP_ID} />
         </div>
       </div>
 
-      {/* Shared tooltip portal — single instance for both donuts */}
+      {/* Shared tooltip */}
       {createPortal(
         <div
           id={TOOLTIP_ID}
@@ -257,7 +237,6 @@ export default function MixDistribution({ salesData }) {
             color: '#FFFFFF',
             fontSize: 13,
             fontWeight: 500,
-            /* reduced padding: was 8px 20px, now 4px 16px */
             padding: '4px 16px',
             borderRadius: 9999,
             pointerEvents: 'none',
@@ -274,10 +253,8 @@ export default function MixDistribution({ salesData }) {
         document.body
       )}
 
-      {/* Divider */}
       <div className="card-divider" style={{ marginBlock: 16 }} />
 
-      {/* Bar tables */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <BarTable entries={catEntries}  totalUnits={totalUnits} sectionTitle="Detalhamento por categoria" />
         <div className="card-divider" />

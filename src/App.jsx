@@ -72,6 +72,8 @@ export default function App() {
             rawRealized={totais.receita}
             rawTarget={targetConfig}
             onTargetChange={handleTargetChange}
+            avgTicket={formatBRL(totais.ticketMedio)}
+            topModel={topModel[0]}
           />
         </div>
       </div>

@@ -106,7 +106,7 @@ export default function Highlights({ biggestSale, biggestSaleVal, biggestSaleQty
               }}
             >
               {/* Icon — blue-400 stroke, 1.5px, no white, positioned top-right */}
-              <div style={{ position: 'absolute', top: 12, right: 12 }}>
+              <div className="icon-blue" style={{ position: 'absolute', top: 12, right: 12 }}>
                 <CardIcon />
               </div>
 
