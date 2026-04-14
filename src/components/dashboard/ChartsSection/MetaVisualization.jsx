@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import anime from 'animejs';
-import { parseMeta, formatMetaDisplay, formatCurrency } from '../../../utils/formatters';
+import { parseMeta, formatMetaDisplay } from '../../../utils/formatters';
 
 import badgeRitmo    from '../../../assets/badge-ritmo.png';
 import badgeTracao   from '../../../assets/badge-tracao.png';

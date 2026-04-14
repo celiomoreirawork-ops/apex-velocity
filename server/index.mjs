@@ -25,7 +25,6 @@ const CACHE_KEY = 'apex_dashboard_data';
 let clients = [];
 
 app.use(cors());
-app.use(express.json());
 
 // ---------------------------------------------------------
 // Middleware for Server-Sent Events (SSE) Broadcast

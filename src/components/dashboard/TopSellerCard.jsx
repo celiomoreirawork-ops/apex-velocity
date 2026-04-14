@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import anime from 'animejs';
+import React from 'react';
 import { formatCurrency } from '../../utils/formatters';
 
 const C = {
@@ -16,7 +15,6 @@ const C = {
 
 const sLabel = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
 const sName = { fontSize: 16, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', textAlign: 'center' };
-const sValue = { fontSize: 24, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
 const sValueSmall = { fontSize: 18, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
 
 const IconUser = () => (

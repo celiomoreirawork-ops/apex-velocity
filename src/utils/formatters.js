@@ -18,10 +18,6 @@ export const formatCurrency = (val) => {
   }).format(val || 0);
 };
 
-export const formatShortMillions = (val) => {
-  return `${((val || 0) / 1_000_000).toFixed(1)}M`;
-};
-
 export const formatShortBRL = (val) => {
   if (val >= 1_000_000) return `R$ ${(val / 1_000_000).toFixed(1)}M`;
   if (val >= 1_000)     return `R$ ${(val / 1_000).toFixed(0)}k`;
