@@ -14,10 +14,10 @@ const C = {
   tag: 'rgba(88,91,108,0.30)',
 };
 
-const sLabel     = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
-const sName      = { fontSize: 16, fontWeight: 500, color: C.white,   letterSpacing: '-0.02em', textAlign: 'center' };
-const sValue     = { fontSize: 24, fontWeight: 500, color: C.white,   letterSpacing: '-0.02em', lineHeight: 1.1 };
-const sValueSmall = { fontSize: 18, fontWeight: 500, color: C.white,  letterSpacing: '-0.02em', lineHeight: 1.1 };
+const sLabel = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
+const sName = { fontSize: 16, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', textAlign: 'center' };
+const sValue = { fontSize: 24, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
+const sValueSmall = { fontSize: 18, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
 
 const IconUser = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke={C.blue400} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
@@ -44,7 +44,7 @@ function getAvatarSrc(name) {
 function Avatar({ name, size, showRank1Badge = false }) {
   const src = getAvatarSrc(name);
   return (
-    <div style={{ position: 'relative', flexShrink: 0 }}>
+    <div style={{ position: 'relative', flexShrink: 0, width: size, height: size }}>
       <div style={{
         width: size, height: size, borderRadius: '50%', overflow: 'hidden',
         background: C.gray600, border: `2px solid ${C.blue700}`,
@@ -54,8 +54,8 @@ function Avatar({ name, size, showRank1Badge = false }) {
       {showRank1Badge && (
         <div style={{
           position: 'absolute',
-          left: 0,
-          bottom: 0,
+          left: '14.6%',
+          bottom: '14.6%',
           transform: 'translate(-50%, 50%)',
           width: 32,
           height: 32,
@@ -105,9 +105,9 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
         <IconUser />
         <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>Executivos de Vendas</h3>
       </div>
-      
+
       {/* Prime place label - Top Right */}
-      <p style={{ position: 'absolute', top: 24, right: 24, fontSize: 11, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em' }}>Primeiro lugar</p>
+      <p style={{ position: 'absolute', top: 24, right: 24, fontSize: 11, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em' }}>1º lugar</p>
 
       <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
         <Avatar name={data.name} size={120} showRank1Badge />

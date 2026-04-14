@@ -188,7 +188,7 @@ export default function RankingChart({ salesData = [] }) {
             width: 240, 
             top: -999, 
             left: -999, 
-            background: 'rgba(36, 37, 46, 0.75)', 
+            background: 'rgba(36, 37, 46, 0.45)', 
             borderRadius: 16,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             opacity: hoveredData ? 1 : 0,
