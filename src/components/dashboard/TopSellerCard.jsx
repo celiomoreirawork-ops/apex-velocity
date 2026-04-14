@@ -14,20 +14,22 @@ const C = {
   tag: 'rgba(88,91,108,0.30)',
 };
 
-const sLabel = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
-const sName = { fontSize: 16, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', textAlign: 'center' };
-const sValue = { fontSize: 24, fontWeight: 600, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
-const sValueSmall = { fontSize: 18, fontWeight: 600, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
+// Typography — max fontWeight: 500 (Inter Medium) — UI Standards v3.2
+const sLabel     = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
+const sName      = { fontSize: 16, fontWeight: 500, color: C.white,   letterSpacing: '-0.02em', textAlign: 'center' };
+const sValue     = { fontSize: 24, fontWeight: 500, color: C.white,   letterSpacing: '-0.02em', lineHeight: 1.1 };
+const sValueSmall = { fontSize: 18, fontWeight: 500, color: C.white,  letterSpacing: '-0.02em', lineHeight: 1.1 };
 
+// Card title icon — 20x20px, blue-400
 const IconUser = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke={C.blue400} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
   </svg>
 );
 
 const IconTrophy = ({ size = 14 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth="1.5" stroke="#0523E5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: size, height: size, flexShrink: 0 }}>
+  <svg width={size} height={size} viewBox="0 0 24 24" strokeWidth="1.5" stroke={C.blue400} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: size, height: size, flexShrink: 0 }}>
     <path d="M8 21h8m-4-4v4" />
     <path d="M5 7H3a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h.5" />
     <path d="M19 7h2a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-.5" />
@@ -41,14 +43,35 @@ function getAvatarSrc(name) {
   return FEMALE_NAMES.includes(first) ? '/avatar-female.png' : '/avatar-male.png';
 }
 
-function Avatar({ name, size }) {
+function Avatar({ name, size, showRank1Badge = false }) {
   const src = getAvatarSrc(name);
   return (
-    <div style={{
-      width: size, height: size, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-      background: C.gray600, border: `2px solid #0523E5`,
-    }}>
-      <img src={src} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+    <div style={{ position: 'relative', flexShrink: 0 }}>
+      <div style={{
+        width: size, height: size, borderRadius: '50%', overflow: 'hidden',
+        background: C.gray600, border: `2px solid ${C.blue700}`,
+      }}>
+        <img src={src} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+      </div>
+      {showRank1Badge && (
+        <div style={{
+          position: 'absolute',
+          bottom: 2,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          background: C.blue700,
+          border: `2px solid ${C.white}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10,
+        }}>
+          <span style={{ fontSize: 10, fontWeight: 500, color: C.white, letterSpacing: 'normal', lineHeight: 1 }}>1º</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -65,22 +88,35 @@ function getVehicleTags(salesData, sellerName) {
   return Object.entries(modelQty).sort((a, b) => b[1] - a[1]);
 }
 
+// Vehicle tag — name + quantity in blue (global standard)
+const VehicleTag = ({ model, qty }) => (
+  <div style={{
+    display: 'inline-flex', alignItems: 'center', gap: 4,
+    background: C.tag, borderRadius: 9999, padding: '2px 8px',
+  }}>
+    <span style={{ fontSize: 9, fontWeight: 300, color: C.white, letterSpacing: 'normal' }}>{model}</span>
+    <span style={{ fontSize: 9, fontWeight: 500, color: C.blue400, letterSpacing: 'normal' }}>{qty}</span>
+  </div>
+);
+
 const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeader }) => {
   const vehicleTags = getVehicleTags(salesData, data.name);
   return (
     <div className="standard-card" style={{ flex: 1.4, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Card title — consistent standard: icon + white text, fontWeight 500, 14px */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <IconUser />
-        <h3 style={{ fontSize: 13, fontWeight: 500, color: C.gray200, letterSpacing: '-0.02em' }}>Executivos de Vendas</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>Executivos de Vendas</h3>
       </div>
 
       <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-        <Avatar name={data.name} size={120} />
+        {/* Avatar with 1º badge */}
+        <Avatar name={data.name} size={120} showRank1Badge />
         <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: C.white, letterSpacing: '-0.02em' }}>{data.name}</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{data.name}</h2>
           <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
             <p style={sLabel}>Receita total acumulada</p>
-            <p style={{ fontSize: 32, fontWeight: 700, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>{formatCurrency(data.revenue)}</p>
+            <p style={{ fontSize: 32, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>{formatCurrency(data.revenue)}</p>
           </div>
         </div>
       </div>
@@ -91,16 +127,19 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
         <div>
           <p style={sLabel}>Maior venda única</p>
           <p style={{ ...sValueSmall, marginTop: 4 }}>{formatCurrency(data.biggestSingleSale?.revenue || 0)}</p>
-          <p style={{ fontSize: 11, color: C.gray200, marginTop: 2 }}>
+          <p style={{ fontSize: 11, fontWeight: 300, color: C.gray200, marginTop: 2, letterSpacing: '-0.02em' }}>
             {data.biggestSingleSale?.qty} un. · {data.biggestSingleSale?.model}
           </p>
         </div>
         <div>
           <p style={sLabel}>Volume total</p>
-          <p style={{ ...sValueSmall, marginTop: 4 }}>{data.totalCars} <span style={{ fontSize: 12, fontWeight: 300 }}>unidades</span></p>
+          <p style={{ ...sValueSmall, marginTop: 4 }}>
+            {data.totalCars} <span style={{ fontSize: 12, fontWeight: 300 }}>unidades</span>
+          </p>
+          {/* Vehicle tags — model + qty in blue */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
             {vehicleTags.slice(0, 3).map(([model, qty]) => (
-              <span key={model} style={{ fontSize: 9, background: C.tag, padding: '2px 8px', borderRadius: 9999, color: C.white }}>{model}</span>
+              <VehicleTag key={model} model={model} qty={qty} />
             ))}
           </div>
         </div>
@@ -108,15 +147,15 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
 
       <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
         {isVolumeLeader && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: `1.5px solid ${C.blue700}`, borderRadius: 9999, padding: '4px 10px' }}>
             <IconTrophy size={12} />
-            <span style={{ fontSize: 10, color: C.white }}>Líder de Volume</span>
+            <span style={{ fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Líder de Volume</span>
           </div>
         )}
         {isBiggestSaleLeader && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: `1.5px solid ${C.blue700}`, borderRadius: 9999, padding: '4px 10px' }}>
             <IconTrophy size={12} />
-            <span style={{ fontSize: 10, color: C.white }}>Maior Venda</span>
+            <span style={{ fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Maior Venda</span>
           </div>
         )}
       </div>
@@ -126,8 +165,10 @@ const MainExecutiveCard = ({ data, salesData, isVolumeLeader, isBiggestSaleLeade
 
 const SecondaryExecutiveCard = ({ data, rank }) => (
   <div className="standard-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <p style={{ fontSize: 11, fontWeight: 500, color: C.blue400 }}>{rank}º Lugar</p>
+    {/* Rank label top-left, avatar top-right */}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      {/* "2º lugar" / "3º lugar" — top left, white, fontWeight 500 */}
+      <p style={{ fontSize: 11, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{rank}º lugar</p>
       <Avatar name={data.name} size={48} />
     </div>
 
@@ -144,8 +185,8 @@ const SecondaryExecutiveCard = ({ data, rank }) => (
       </div>
       <div>
         <p style={sLabel}>Maior venda única</p>
-        <p style={{ fontSize: 13, fontWeight: 500, color: C.white }}>{formatCurrency(data.biggestSingleSale?.revenue || 0)}</p>
-        <p style={{ fontSize: 10, color: C.gray200 }}>
+        <p style={{ fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{formatCurrency(data.biggestSingleSale?.revenue || 0)}</p>
+        <p style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>
           {data.biggestSingleSale?.qty} un. · {data.biggestSingleSale?.model}
         </p>
       </div>
@@ -166,16 +207,10 @@ export default function TopSellerCard({ sellersStats = [], salesData, leaderVolu
       />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {sellersStats[1] && (
-          <SecondaryExecutiveCard
-            data={sellersStats[1]}
-            rank={2}
-          />
+          <SecondaryExecutiveCard data={sellersStats[1]} rank={2} />
         )}
         {sellersStats[2] && (
-          <SecondaryExecutiveCard
-            data={sellersStats[2]}
-            rank={3}
-          />
+          <SecondaryExecutiveCard data={sellersStats[2]} rank={3} />
         )}
       </div>
     </div>

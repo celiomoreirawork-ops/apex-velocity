@@ -19,7 +19,7 @@ const C = {
 };
 
 const sLabel = { fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' };
-const sValue = { fontSize: 20, fontWeight: 500, color: C.white,  letterSpacing: '-0.02em', lineHeight: 1.1 };
+const sValue = { fontSize: 20, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 };
 
 // Card title icon — 20x20px per spec
 const IconTarget = () => (
@@ -30,7 +30,7 @@ const IconTarget = () => (
   </svg>
 );
 
-// Edit icon — 16px per spec for "Editar meta"
+// Edit icon — 16px per spec
 const IconEdit = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="1.5" stroke={C.gray400} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16, flexShrink: 0 }}>
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -43,24 +43,15 @@ const badgeMap = { ritmo: badgeRitmo, tracao: badgeTracao, avanco: badgeAvanco, 
 const formatFullBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
 
-const KPIBlock = ({ label, value, highlightBorder = false }) => (
+// KPIBlock — no highlight border, plain surface
+const KPIBlock = ({ label, value }) => (
   <div style={{
+    background: 'rgba(255,255,255,0.08)',
     borderRadius: 8,
     padding: 16,
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
-    ...(highlightBorder
-      ? {
-          background: 'rgba(255,255,255,0.04)',
-          border: '1.5px solid transparent',
-          backgroundClip: 'padding-box',
-          boxShadow: '0 0 0 1.5px #0523E5, 0 0 0 3px #1B0056',
-        }
-      : {
-          background: 'rgba(255,255,255,0.04)',
-        }
-    ),
   }}>
     <p style={sLabel}>{label}</p>
     <p style={sValue}>{value}</p>
@@ -81,7 +72,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
   }, []);
 
   const currentLevel = useMemo(() => {
-    if (percent >= 175)      return 'lendario';
+    if (percent >= 175) return 'lendario';
     if (percent >= 150) return 'avanco';
     if (percent >= 125) return 'tracao';
     if (percent >= 100) return 'ritmo';
@@ -109,16 +100,30 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
   const isSurplus = diff > 0;
 
   return (
-    <div ref={containerRef} className="standard-card" style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%', position: 'relative', background: C.gray900 }}>
+    <div
+      ref={containerRef}
+      className="standard-card"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        height: '100%',
+        position: 'relative',
+        /* Degradê 2 as card fill — no stroke/border */
+        background: 'linear-gradient(160deg, #0523E5 0%, #1B0056 100%)',
+        border: 'none',
+        boxShadow: 'none',
+      }}
+    >
 
       {/* Achievement badge */}
       {percent >= 100 && currentLevel && (
-        <div style={{ position: 'absolute', top: 12, right: 12, padding: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 6, zIndex: 20, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: 12, right: 12, padding: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 6, zIndex: 20, pointerEvents: 'none' }}>
           <img src={badgeMap[currentLevel]} alt={currentLevel} style={{ width: 60, height: 60, objectFit: 'contain' }} />
         </div>
       )}
 
-      {/* Card title — icon + text, no subtitle */}
+      {/* Card title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <IconTarget />
         <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>
@@ -128,20 +133,21 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
 
       {/* KPI grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <KPIBlock label="Meta do mês"                          value={formatFullBRL(rawTarget)} highlightBorder />
+        <KPIBlock label="Meta do mês"                          value={formatFullBRL(rawTarget)} />
         <KPIBlock label="Receita atual"                        value={formatFullBRL(rawRealized)} />
         <KPIBlock label={isSurplus ? 'Excedente' : 'Faltante'} value={(isSurplus ? '+' : '') + formatFullBRL(Math.abs(diff))} />
         <KPIBlock label="Fat. atingido"                        value={`${percent.toFixed(0)}%`} />
       </div>
 
-      {/* Progress bar */}
+      {/* Progress bar — Degradê 2 fill */}
       <div style={{ position: 'relative', marginBottom: 24 }}>
-        <div style={{ height: 16, width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 9999, overflow: 'hidden' }}>
+        <div style={{ height: 16, width: '100%', background: 'rgba(255,255,255,0.12)', borderRadius: 9999, overflow: 'hidden' }}>
           <div
             ref={barRef}
             style={{
               height: '100%', width: '0%', borderRadius: 9999,
-              background: 'linear-gradient(90deg, #0523E5, #94D1FF)',
+              background: 'linear-gradient(90deg, #1B0056, #0523E5)',
+              border: '1px solid rgba(255,255,255,0.25)',
               transition: 'none',
             }}
           />
@@ -153,16 +159,16 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
               position: 'absolute',
               left: `${(val / 175) * 100}%`,
               transform: 'translateX(-50%)',
-              fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal'
+              fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: 'normal'
             }}>{val}%</span>
           ))}
         </div>
       </div>
 
       {/* Divider */}
-      <div className="card-divider" />
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.15)', width: '100%', border: 'none' }} />
 
-      {/* Edit meta action — replaces the legend row */}
+      {/* Edit meta action */}
       {isEditingMeta ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <IconEdit />
@@ -175,7 +181,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
             onKeyDown={handleKeyDown}
             style={{
               flex: 1,
-              background: C.gray900,
+              background: 'rgba(0,0,0,0.3)',
               color: C.white,
               fontFamily: 'Inter, sans-serif',
               fontWeight: 300,
@@ -183,7 +189,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
               letterSpacing: '-0.02em',
               borderRadius: 6,
               padding: '8px 12px',
-              border: `1px solid ${C.blue700}`,
+              border: '1px solid rgba(255,255,255,0.3)',
               outline: 'none',
             }}
           />
@@ -198,7 +204,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
           }}
         >
           <IconEdit />
-          <span style={{ fontSize: 11, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>
+          <span style={{ fontSize: 11, fontWeight: 300, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.02em' }}>
             Editar meta mensal
           </span>
         </button>

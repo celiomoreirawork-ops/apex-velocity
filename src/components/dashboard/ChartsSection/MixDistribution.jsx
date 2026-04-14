@@ -5,8 +5,8 @@ import { createPortal } from 'react-dom';
 
 const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C', blue400: '#5B9FFF', blue200: '#94D1FF', blue700: '#0523E5', blue950: '#1B0056' };
 
-// Degradê 2 — bottom→top for bars
-const BAR_GRADIENT = 'linear-gradient(0deg, #1B0056, #0523E5)';
+// Degradê 2 for bar fills
+const BAR_GRADIENT = 'linear-gradient(90deg, #0523E5, #1B0056)';
 
 // Card title icon — 20x20px
 const IconPieChart = () => (
@@ -16,9 +16,12 @@ const IconPieChart = () => (
   </svg>
 );
 
-/* Donut segment colors — solid blue palette, NO gray, NO reduced opacity (100% opaque) */
+/* Donut segment colors — solid blue palette, 100% opaque */
 const SEG_CAT  = ['#0523E5', '#1B0056', '#5B9FFF', '#94D1FF', '#1A4195'];
 const SEG_SPEC = { 'Top de linha': '#0523E5', 'Entrada': '#5B9FFF', 'Básico': '#94D1FF' };
+
+// Shared tooltip id — single portal instance managed by MixDistribution
+const TOOLTIP_ID = 'mix-tooltip-shared';
 
 function Legend({ entries, getColor }) {
   return (
@@ -33,7 +36,7 @@ function Legend({ entries, getColor }) {
   );
 }
 
-function DonutChart({ title, data, total, getColor }) {
+function DonutChart({ title, data, total, getColor, tooltipId }) {
   const [hovered, setHovered] = useState(null);
   const [hasAnimated, setHasAnimated] = useState(false);
   const containerRef = useRef(null);
@@ -42,7 +45,7 @@ function DonutChart({ title, data, total, getColor }) {
 
   let slices = [];
   let currentAngle = -Math.PI / 2;
-  
+
   for (let i = 0; i < data.length; i++) {
     const [label, value] = data[i];
     const angle = total > 0 ? (value / total) * 2 * Math.PI : 0;
@@ -70,11 +73,35 @@ function DonutChart({ title, data, total, getColor }) {
     return () => anim.pause();
   }, [hasAnimated, data]);
 
+  const moveTooltip = (e, label) => {
+    const t = document.getElementById(tooltipId);
+    if (t) {
+      t.textContent = label;
+      t.style.opacity = '1';
+      t.style.visibility = 'visible';
+      const tw = t.offsetWidth || 120;
+      const th = t.offsetHeight || 40;
+      let left = e.clientX + 20;
+      let top = e.clientY;
+      if (left + tw + 16 > window.innerWidth) left = e.clientX - tw - 20;
+      if (top + th > window.innerHeight) top = window.innerHeight - th - 16;
+      if (top < 16) top = 16;
+      t.style.left = `${left}px`;
+      t.style.top = `${top}px`;
+    }
+  };
+
+  const hideTooltip = () => {
+    const t = document.getElementById(tooltipId);
+    if (t) { t.style.opacity = '0'; t.style.visibility = 'hidden'; }
+  };
+
   return (
     <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ position: 'relative', width: SIZE, height: SIZE }}>
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ width: SIZE, height: SIZE, strokeWidth: 'unset', fill: 'none', stroke: 'none' }}>
-          <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={T} />
+          {/* Track ring */}
+          <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={T} />
           {slices.map((s, i) => {
             const pLen = 2 * Math.PI * R;
             return (
@@ -85,30 +112,42 @@ function DonutChart({ title, data, total, getColor }) {
                 fill="none"
                 stroke={s.color}
                 strokeWidth={T}
+                /* White hairline separator between slices — centered on edge */
+                strokeDasharray={pLen}
+                strokeDashoffset={pLen}
                 style={{
                   strokeDasharray: pLen, strokeDashoffset: pLen,
-                  opacity: hovered && hovered !== s.label ? 0.25 : 1,
+                  opacity: hovered && hovered !== s.label ? 0.3 : 1,
                   transform: hovered === s.label ? 'scale(1.04)' : 'scale(1)',
                   transition: 'opacity 0.2s, transform 0.2s',
                   cursor: 'pointer',
-                  transformOrigin: `${CX}px ${CY}px`
+                  transformOrigin: `${CX}px ${CY}px`,
+                  paintOrder: 'stroke',
                 }}
                 onMouseEnter={() => setHovered(s.label)}
-                onMouseMove={(e) => {
-                  const t = document.getElementById('mix-tooltip');
-                  if (t) {
-                    const tw = t.offsetWidth || 120;
-                    const th = t.offsetHeight || 40;
-                    let left = e.clientX + 20;
-                    let top = e.clientY;
-                    if (left + tw + 16 > window.innerWidth) left = e.clientX - tw - 20;
-                    if (top + th > window.innerHeight) top = window.innerHeight - th - 16;
-                    if (top < 16) top = 16;
-                    t.style.left = `${left}px`;
-                    t.style.top = `${top}px`;
-                  }
-                }}
-                onMouseLeave={() => setHovered(null)}
+                onMouseMove={(e) => moveTooltip(e, s.label)}
+                onMouseLeave={() => { setHovered(null); hideTooltip(); }}
+              />
+            );
+          })}
+          {/* White separator strokes — thin rings drawn on top at each slice boundary */}
+          {slices.map((s, i) => {
+            // Draw a short white radial line at each boundary for separation
+            const angle = s.start;
+            const innerR = R - T / 2;
+            const outerR = R + T / 2;
+            const x1 = CX + innerR * Math.cos(angle);
+            const y1 = CY + innerR * Math.sin(angle);
+            const x2 = CX + outerR * Math.cos(angle);
+            const y2 = CY + outerR * Math.sin(angle);
+            return (
+              <line
+                key={`sep-${i}`}
+                x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke="rgba(255,255,255,0.6)"
+                strokeWidth="1.5"
+                strokeLinecap="butt"
+                style={{ pointerEvents: 'none' }}
               />
             );
           })}
@@ -131,33 +170,6 @@ function DonutChart({ title, data, total, getColor }) {
       </div>
       <p style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', marginTop: 8 }}>{title}</p>
       <Legend entries={data} getColor={(label, i) => getColor(label, i)} />
-      
-      {createPortal(
-        <div
-          id="mix-tooltip"
-          style={{
-            position: 'fixed',
-            zIndex: 10000,
-            background: '#24252E',
-            color: '#0523E5',
-            fontSize: 16,
-            fontWeight: 600,
-            padding: '8px 20px',
-            borderRadius: 9999,
-            pointerEvents: 'none',
-            opacity: hovered ? 1 : 0,
-            visibility: hovered ? 'visible' : 'hidden',
-            transition: 'opacity 0.1s ease-out',
-            transform: 'translateY(-50%)',
-            whiteSpace: 'nowrap',
-            border: '1px solid rgba(88,91,108,0.20)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-          }}
-        >
-          {hovered}
-        </div>,
-        document.body
-      )}
     </div>
   );
 }
@@ -183,8 +195,9 @@ const BarTable = ({ entries, totalUnits, sectionTitle }) => (
                 <span style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', width: 80, textAlign: 'right' }}>{value}</span>
               </div>
             </div>
-            <div style={{ width: '100%', background: 'rgba(255,255,255,0.04)', borderRadius: 2, height: 4, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${pct}%`, background: BAR_GRADIENT, borderRadius: 2, transition: 'width 2s ease' }} />
+            {/* Bar height: 12px */}
+            <div style={{ width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 4, height: 12, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: BAR_GRADIENT, borderRadius: 4, transition: 'width 2s ease' }} />
             </div>
           </div>
         );
@@ -205,7 +218,7 @@ export default function MixDistribution({ salesData }) {
   const tierEntries = Object.entries(tierAgg).sort((a, b) => b[1] - a[1]);
 
   const getCatColor  = (_, i) => SEG_CAT[i % SEG_CAT.length];
-  const getSpecColor = (label) => SEG_SPEC[label] || 'rgba(255,255,255,0.15)';
+  const getSpecColor = (label) => SEG_SPEC[label] || '#1A4195';
 
   return (
     <div className="standard-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -228,10 +241,38 @@ export default function MixDistribution({ salesData }) {
           <p style={{ fontSize: 11, fontWeight: 500, color: C.gray200, letterSpacing: 'normal', marginTop: 2, fontFamily: 'Inter, sans-serif' }}>vendidas</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, width: '100%', position: 'relative', zIndex: 0 }}>
-          <DonutChart title="Categoria"     data={catEntries}  total={totalUnits} getColor={getCatColor} />
-          <DonutChart title="Especificação" data={tierEntries} total={totalUnits} getColor={getSpecColor} />
+          <DonutChart title="Categoria"     data={catEntries}  total={totalUnits} getColor={getCatColor}  tooltipId={TOOLTIP_ID} />
+          <DonutChart title="Especificação" data={tierEntries} total={totalUnits} getColor={getSpecColor} tooltipId={TOOLTIP_ID} />
         </div>
       </div>
+
+      {/* Shared tooltip portal — single instance for both donuts */}
+      {createPortal(
+        <div
+          id={TOOLTIP_ID}
+          style={{
+            position: 'fixed',
+            zIndex: 10000,
+            background: '#24252E',
+            color: '#FFFFFF',
+            fontSize: 13,
+            fontWeight: 500,
+            /* reduced padding: was 8px 20px, now 4px 16px */
+            padding: '4px 16px',
+            borderRadius: 9999,
+            pointerEvents: 'none',
+            opacity: 0,
+            visibility: 'hidden',
+            transition: 'opacity 0.1s ease-out',
+            transform: 'translateY(-50%)',
+            whiteSpace: 'nowrap',
+            border: '1px solid rgba(88,91,108,0.25)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            letterSpacing: '-0.02em',
+          }}
+        />,
+        document.body
+      )}
 
       {/* Divider */}
       <div className="card-divider" style={{ marginBlock: 16 }} />

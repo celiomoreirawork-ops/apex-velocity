@@ -19,6 +19,12 @@
 - **Primary Information**: #FFFFFF
 - **Secondary Information**: #D0D1D6
 - **Letter-spacing**: -0.02em (default), normal (font-size < 10px)
+- **Max weight allowed**: Inter Medium (fontWeight: 500) — SemiBold/Bold FORBIDDEN
+- **Weights in use**: 300 (Light), 500 (Medium) only
+
+## 4. ICONS
+- **Default**: stroke = currentColor, strokeWidth 1.5px, fill none
+- **Highlights card EXCEPTION**: stroke = #5B9FFF (blue-400), strokeWidth 1.5px — no white, no gradient
 
 ## 4. BORDER RADIUS
 - **Cards**: 10px
