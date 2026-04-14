@@ -135,7 +135,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
               position: 'absolute',
               left: `${(val / 175) * 100}%`,
               transform: 'translateX(-50%)',
-              fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal'
+              fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal'
             }}>{val}%</span>
           ))}
         </div>
@@ -180,7 +180,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
           }}
         >
           <IconEdit />
-          <span style={{ fontSize: 11, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em' }}>
+          <span style={{ fontSize: 11, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>
             Editar meta mensal
           </span>
         </button>

@@ -10,7 +10,7 @@ const containerConfig = {
 const itemConfig = { hidden: { opacity: 0, x: 16 }, show: { opacity: 1, x: 0 } };
 
 const IconTrophy = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+  <svg width="32" height="32" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#0523E5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 32, height: 32 }}>
     <path d="M8 21h8m-4-4v4" />
     <path d="M5 7H3a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h.5" />
     <path d="M19 7h2a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-.5" />
@@ -18,19 +18,19 @@ const IconTrophy = () => (
   </svg>
 );
 const IconBar = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+  <svg width="32" height="32" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#0523E5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 32, height: 32 }}>
     <line x1="18" y1="20" x2="18" y2="10" />
     <line x1="12" y1="20" x2="12" y2="4" />
     <line x1="6"  y1="20" x2="6"  y2="14" />
   </svg>
 );
 const IconStar = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+  <svg width="32" height="32" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#0523E5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 32, height: 32 }}>
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 );
 const IconCard = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
+  <svg width="32" height="32" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#0523E5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ width: 32, height: 32 }}>
     <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
     <line x1="1" y1="10" x2="23" y2="10" />
   </svg>
@@ -86,11 +86,11 @@ export default function Highlights({ biggestSale, biggestSaleVal, biggestSaleQty
             }}
           >
             {/* Icon */}
-            <div style={{ position: 'absolute', top: 12, right: 12, color: C.gray600, opacity: 0.6 }}>
+            <div style={{ position: 'absolute', top: 12, right: 12 }}>
               <CardIcon />
             </div>
 
-            <span style={{ fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em' }}>{label}</span>
+            <span style={{ fontSize: 11, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>{label}</span>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 'auto' }}>
               <p style={{ fontSize: 20, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }} className="truncate">

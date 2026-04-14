@@ -158,13 +158,13 @@ export default function TopSellerCard({
         {/* 4. Award tags */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {isVolumeLeader && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.tag, borderRadius: 9999, padding: '4px 10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
               <IconTrophy />
               <span style={{ fontSize: 11, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Líder de Volume</span>
             </div>
           )}
           {isBiggestSaleLeader && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.tag, borderRadius: 9999, padding: '4px 10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
               <IconTrophy />
               <span style={{ fontSize: 11, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Maior Venda Única</span>
             </div>

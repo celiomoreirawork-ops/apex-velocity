@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { motion as Motion } from 'framer-motion';
 import anime from 'animejs';
 
-const C = { white: '#FFFFFF', gray400: '#91939F', gray600: '#585B6C' };
+const C = { white: '#FFFFFF', gray200: '#D0D1D6', gray400: '#91939F', gray600: '#585B6C' };
 
 const containerConfig = {
   hidden: { opacity: 0 },
@@ -40,11 +40,11 @@ export default function KPICards({ avgTicket }) {
         variants={itemConfig}
         className="standard-card dashboard-card"
       >
-        <p style={{ fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em', marginBottom: 8 }}>
+        <p style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', marginBottom: 8 }}>
           Ticket médio
         </p>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-          <span style={{ fontSize: 13, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em' }}>R$</span>
+          <span style={{ fontSize: 13, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>R$</span>
           <h3
             ref={counterRef}
             style={{ fontSize: 20, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1.1 }}
@@ -52,7 +52,7 @@ export default function KPICards({ avgTicket }) {
             {(avgTicket || '').replace('R$', '').trim()}
           </h3>
         </div>
-        <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginTop: 16 }}>
+        <p style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal', marginTop: 16 }}>
           Mix de vendas
         </p>
       </Motion.div>

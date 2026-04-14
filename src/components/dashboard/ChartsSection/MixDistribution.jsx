@@ -24,7 +24,7 @@ function Legend({ entries, getColor }) {
       {entries.map(([label], i) => (
         <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: getColor(label, i), flexShrink: 0 }} />
-          <span style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal' }}>{label}</span>
+          <span style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal' }}>{label}</span>
         </div>
       ))}
     </div>
@@ -105,7 +105,7 @@ function DonutChart({ title, data, total, getColor }) {
                 <span style={{ fontSize: 20, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>
                   {((data.find(d => d[0] === hovered)?.[1] / total) * 100).toFixed(0)}%
                 </span>
-                <span style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginTop: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal', marginTop: 4 }}>
                   {data.find(d => d[0] === hovered)?.[1]} un.
                 </span>
               </Motion.div>
@@ -113,7 +113,7 @@ function DonutChart({ title, data, total, getColor }) {
           </AnimatePresence>
         </div>
       </div>
-      <p style={{ fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em', marginTop: 8 }}>{title}</p>
+      <p style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', marginTop: 8 }}>{title}</p>
       <Legend entries={data} getColor={(label, i) => getColor(label, i)} />
     </div>
   );
@@ -122,10 +122,10 @@ function DonutChart({ title, data, total, getColor }) {
 const BarTable = ({ entries, totalUnits, sectionTitle }) => (
   <div>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
-      <h4 style={{ fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em' }}>{sectionTitle}</h4>
+      <h4 style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{sectionTitle}</h4>
       <div style={{ display: 'flex', gap: 16, paddingRight: 4 }}>
-        <span style={{ fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em', width: 80, textAlign: 'right', whiteSpace: 'nowrap' }}>% de vendas</span>
-        <span style={{ fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em', width: 80, textAlign: 'right', whiteSpace: 'nowrap' }}>Unidades</span>
+        <span style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em', width: 80, textAlign: 'right', whiteSpace: 'nowrap' }}>% de vendas</span>
+        <span style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em', width: 80, textAlign: 'right', whiteSpace: 'nowrap' }}>Unidades</span>
       </div>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -134,7 +134,7 @@ const BarTable = ({ entries, totalUnits, sectionTitle }) => (
         return (
           <div key={label}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em' }}>{label}</span>
+              <span style={{ fontSize: 11, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>{label}</span>
               <div style={{ display: 'flex', gap: 16, paddingRight: 4 }}>
                 <span style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', width: 80, textAlign: 'right' }}>{pct}%</span>
                 <span style={{ fontSize: 12, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', width: 80, textAlign: 'right' }}>{value}</span>
@@ -174,7 +174,7 @@ export default function MixDistribution({ salesData }) {
       <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBlock: 8 }}>
         <div style={{ position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', pointerEvents: 'none', zIndex: 10 }}>
           <p style={{ fontSize: 32, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>{totalUnits}</p>
-          <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginTop: 4 }}>unidades vendidas</p>
+          <p style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal', marginTop: 4 }}>unidades vendidas</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, width: '100%', position: 'relative', zIndex: 0 }}>
           <DonutChart title="Categoria"     data={catEntries}  total={totalUnits} getColor={getCatColor} />

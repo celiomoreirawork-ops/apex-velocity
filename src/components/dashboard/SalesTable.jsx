@@ -16,7 +16,7 @@ const IconFileText = () => (
   </svg>
 );
 
-const sTh = { fontSize: 10, fontWeight: 300, color: C.gray600, letterSpacing: '-0.02em', whiteSpace: 'nowrap', padding: '14px 20px', textAlign: 'left' };
+const sTh = { fontSize: 10, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em', whiteSpace: 'nowrap', padding: '14px 20px', textAlign: 'left' };
 const sThR = { ...sTh, textAlign: 'right' };
 
 const IconDownload = () => (
@@ -35,7 +35,7 @@ const IconSort = () => (
 
 const FilterSelect = ({ label, value, onChange, options, placeholder }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-    <label style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal' }}>{label}</label>
+    <label style={{ fontSize: 9, fontWeight: 300, color: C.gray200, letterSpacing: 'normal' }}>{label}</label>
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
@@ -77,13 +77,13 @@ export default function SalesTable({ salesData }) {
   return (
     <div className="standard-card" style={{ overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <IconFileText />
           <h3 style={{ fontSize: 14, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>Relatório de Vendas</h3>
         </div>
         <button
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(255,255,255,0.05)', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(255,255,255,0.05)', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}
         >
           <IconDownload />
           Exportar CSV
@@ -91,7 +91,7 @@ export default function SalesTable({ salesData }) {
       </div>
 
       {/* Divider */}
-      <div className="card-divider" />
+      <div className="card-divider" style={{ marginBlock: 24 }} />
 
       {/* Filters */}
       <div style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.01)', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, alignItems: 'end' }}>
@@ -100,10 +100,10 @@ export default function SalesTable({ salesData }) {
         <FilterSelect label="Classe"        value={filterCategory} onChange={setFilterCategory} options={categories} placeholder="Todas" />
         <FilterSelect label="Especificação" value={filterType}     onChange={setFilterType}     options={types}      placeholder="Todas" />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal' }}>Ordenar</label>
+          <label style={{ fontSize: 9, fontWeight: 300, color: C.gray200, letterSpacing: 'normal' }}>Ordenar</label>
           <button
             onClick={() => setSortOrder(p => p === 'desc' ? 'asc' : 'desc')}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}
           >
             <span>{sortOrder === 'desc' ? 'Maior → Menor' : 'Menor → Maior'}</span>
             <IconSort />
@@ -112,7 +112,7 @@ export default function SalesTable({ salesData }) {
       </div>
 
       {/* Divider */}
-      <div className="card-divider" />
+      <div className="card-divider" style={{ marginBlock: 24 }} />
 
       {/* Table */}
       <div style={{ overflowX: 'auto' }}>
@@ -139,25 +139,25 @@ export default function SalesTable({ salesData }) {
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
                   <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{item.seller}</td>
-                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em' }}>{item.model}</td>
+                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}>{item.model}</td>
                   <td style={{ padding: '14px 20px' }}>
-                    <span style={{ display: 'inline-block', padding: '3px 8px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal' }}>
+                    <span style={{ display: 'inline-block', padding: '3px 8px', borderRadius: 9999, background: 'rgba(255,255,255,0.05)', fontSize: 9, fontWeight: 300, color: C.gray200, letterSpacing: 'normal' }}>
                       {item.category}
                     </span>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
                     <span style={{
-                      display: 'inline-block', padding: '3px 8px', borderRadius: 999,
+                      display: 'inline-block', padding: '3px 8px', borderRadius: 9999,
                       background: (item.type === 'Top de Linha' || item.type === 'Top de linha') ? 'rgba(91,159,255,0.12)' : 'rgba(255,255,255,0.03)',
                       fontSize: 9, fontWeight: 300,
-                      color: (item.type === 'Top de Linha' || item.type === 'Top de linha') ? C.blue400 : C.gray600,
+                      color: (item.type === 'Top de Linha' || item.type === 'Top de linha') ? C.blue400 : C.gray200,
                       letterSpacing: 'normal',
                     }}>
                       {item.type}
                     </span>
                   </td>
-                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em', textAlign: 'right' }}>{formatCurrency(item.price)}</td>
-                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 300, color: C.gray400, letterSpacing: '-0.02em', textAlign: 'right' }}>{item.qty}</td>
+                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em', textAlign: 'right' }}>{formatCurrency(item.price)}</td>
+                  <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em', textAlign: 'right' }}>{item.qty}</td>
                   <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', textAlign: 'right' }}>{formatCurrency(item.revenue)}</td>
                 </Motion.tr>
               ))}

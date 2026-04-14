@@ -26,7 +26,7 @@
 }
 
 @layer base {
-  html, body {
+  html {
     background-color: var(--color-black);
     color: #FFFFFF;
     font-family: 'Inter', sans-serif;
@@ -34,6 +34,20 @@
     font-size: 14px;
     letter-spacing: -0.02em;
     -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: var(--color-black);
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    letter-spacing: -0.02em;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   /* Kill ALL text-transform globally */
@@ -98,7 +112,7 @@
 }
 
 /* ─── Scrollbar ────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--color-black); }
 ::-webkit-scrollbar-thumb { background: var(--color-gray-600); border-radius: 4px; }
 

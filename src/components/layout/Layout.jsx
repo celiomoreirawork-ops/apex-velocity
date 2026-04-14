@@ -5,7 +5,7 @@ export default function Layout({ children, status }) {
   const [activePage, setActivePage] = useState('dashboard');
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#000000' }}>
+    <div style={{ display: 'flex', background: '#000000' }}>
       {/* Sidebar — 200px fixed */}
       <Sidebar activePage={activePage} onPageChange={setActivePage} status={status} />
 
@@ -14,10 +14,9 @@ export default function Layout({ children, status }) {
         flex: 1,
         marginLeft: 248, // 240px sidebar + 8px gap
         padding: 24,
-        minHeight: '100vh',
         background: '#000000',
       }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ width: '100%', maxWidth: 1400, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
           {children}
         </div>
       </main>

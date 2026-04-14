@@ -94,7 +94,17 @@ export default function RankingChart({ salesData = [] }) {
   const handleMouseMove = (e) => {
     const t = document.getElementById('ranking-tooltip');
     if (t) {
-      t.style.left = `${e.clientX + 48}px`;
+      const tooltipWidth = 240;
+      let left = e.clientX + 48;
+      
+      if (left + tooltipWidth + 16 > window.innerWidth) {
+        left = e.clientX - tooltipWidth - 48;
+      }
+      if (left < 16) {
+        left = 16;
+      }
+      
+      t.style.left = `${left}px`;
       t.style.top = `${e.clientY}px`;
       t.style.transform = 'translateY(-50%)'; 
     }
@@ -137,7 +147,7 @@ export default function RankingChart({ salesData = [] }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: 9999 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.blue400, flexShrink: 0 }} className="animate-pulse" />
-          <span style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal' }}>Live stats</span>
+          <span style={{ fontSize: 9, fontWeight: 300, color: C.gray200, letterSpacing: 'normal' }}>Live stats</span>
         </div>
       </div>
 
@@ -146,7 +156,7 @@ export default function RankingChart({ salesData = [] }) {
           <div
             key={idx}
             className="rg"
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: 44, minWidth: 44, flexShrink: 0, height: '100%', cursor: 'pointer', position: 'relative' }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: 32, minWidth: 32, flexShrink: 0, height: '100%', cursor: 'pointer', position: 'relative' }}
             onMouseEnter={() => handleEnter(idx)}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleLeave}
@@ -193,15 +203,15 @@ export default function RankingChart({ salesData = [] }) {
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginBottom: 2 }}>Receita total</p>
+                  <p style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal', marginBottom: 2 }}>Receita total</p>
                   <p style={{ fontSize: 13, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em' }}>{formatFullBRL(hoveredData.revenue)}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginBottom: 2 }}>Volume total</p>
+                  <p style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal', marginBottom: 2 }}>Volume total</p>
                   <p style={{ fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{hoveredData.qty} unidades</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 9, fontWeight: 300, color: C.gray600, letterSpacing: 'normal', marginBottom: 2 }}>Maior venda única</p>
+                  <p style={{ fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: 'normal', marginBottom: 2 }}>Maior venda única</p>
                   <p style={{ fontSize: 13, fontWeight: 500, color: C.white, letterSpacing: '-0.02em' }}>{formatFullBRL(hoveredData.biggestSale)}</p>
                 </div>
 
@@ -217,12 +227,12 @@ export default function RankingChart({ salesData = [] }) {
                 {(hoveredData.isVolumeLeader || hoveredData.isBiggestSaleLeader) && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
                     {hoveredData.isVolumeLeader && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(88,91,108,0.30)', borderRadius: 9999, padding: '4px 10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
                             <span style={{ fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Líder de Volume</span>
                         </div>
                     )}
                     {hoveredData.isBiggestSaleLeader && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(88,91,108,0.30)', borderRadius: 9999, padding: '4px 10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0C255C', border: '1.5px solid #0523E5', borderRadius: 9999, padding: '4px 10px' }}>
                             <span style={{ fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em' }}>Maior Venda Única</span>
                         </div>
                     )}
