@@ -50,58 +50,59 @@ export default function App() {
 
   return (
     <Layout sheetTitle={sheetTitle} status={status}>
-
-      {/* Row 1 — Executive highlight + Monthly goal */}
-      <div className="dashboard-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: GAP }}>
-        <div style={{ minHeight: 360 }}>
-          {top3SellersStats.length > 0 && (
-            <TopSellerCard
-              sellersStats={top3SellersStats}
-              leaderVolumeId={leaderVolume[0]}
-              biggestSaleId={biggestSale?.revenue}
-              salesData={sales}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: GAP }}>
+        {/* Row 1 — Executive highlight + Monthly goal */}
+        <div className="dashboard-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: GAP }}>
+          <div style={{ minHeight: 360 }}>
+            {top3SellersStats.length > 0 && (
+              <TopSellerCard
+                sellersStats={top3SellersStats}
+                leaderVolumeId={leaderVolume[0]}
+                biggestSaleId={biggestSale?.revenue}
+                salesData={sales}
+              />
+            )}
+          </div>
+          <div style={{ minHeight: 360 }}>
+            <MetaVisualization
+              percent={progressPercent}
+              realized={formatBRL(totais.receita)}
+              baseTarget={formatBRL(targetConfig)}
+              rawRealized={totais.receita}
+              rawTarget={targetConfig}
+              onTargetChange={handleTargetChange}
+              avgTicket={formatBRL(totais.ticketMedio)}
+              topModel={topModel[0]}
             />
-          )}
+          </div>
         </div>
-        <div style={{ minHeight: 360 }}>
-          <MetaVisualization
-            percent={progressPercent}
-            realized={formatBRL(totais.receita)}
-            baseTarget={formatBRL(targetConfig)}
-            rawRealized={totais.receita}
-            rawTarget={targetConfig}
-            onTargetChange={handleTargetChange}
-            avgTicket={formatBRL(totais.ticketMedio)}
+
+        {/* Row 2 — Ranking (full width) */}
+        <div className="dashboard-card">
+          <RankingChart salesData={sales} />
+        </div>
+
+        {/* Row 3 — Mix + Highlights */}
+        <div className="dashboard-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: GAP, alignItems: 'stretch' }}>
+          <MixDistribution salesData={sales} />
+          <Highlights
+            biggestSale={biggestSale?.model ?? '--'}
+            biggestSaleVal={biggestSale ? formatBRL(biggestSale.revenue) : 'R$ 0'}
+            biggestSaleQty={biggestSale?.qty}
+            leaderVolume={leaderVolume[0].split(' ')[0]}
+            leaderVolumeCount={leaderVolume[1]}
             topModel={topModel[0]}
+            topModelCount={topModel[1]}
+            avgTicket={formatBRL(totais.ticketMedio)}
+            receitaAtual={formatBRL(totais.receita)}
+            fatAtingido={`${progressPercent.toFixed(0)}%`}
           />
         </div>
-      </div>
 
-      {/* Row 2 — Ranking (full width) */}
-      <div className="dashboard-card">
-        <RankingChart salesData={sales} />
-      </div>
-
-      {/* Row 3 — Mix + Highlights */}
-      <div className="dashboard-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: GAP, alignItems: 'stretch' }}>
-        <MixDistribution salesData={sales} />
-        <Highlights
-          biggestSale={biggestSale?.model ?? '--'}
-          biggestSaleVal={biggestSale ? formatBRL(biggestSale.revenue) : 'R$ 0'}
-          biggestSaleQty={biggestSale?.qty}
-          leaderVolume={leaderVolume[0].split(' ')[0]}
-          leaderVolumeCount={leaderVolume[1]}
-          topModel={topModel[0]}
-          topModelCount={topModel[1]}
-          avgTicket={formatBRL(totais.ticketMedio)}
-          receitaAtual={formatBRL(totais.receita)}
-          fatAtingido={`${progressPercent.toFixed(0)}%`}
-        />
-      </div>
-
-      {/* Row 4 — Table */}
-      <div className="dashboard-card" style={{ marginBottom: 0 }}>
-        <SalesTable salesData={sales} />
+        {/* Row 4 — Table */}
+        <div className="dashboard-card" style={{ marginBottom: 0 }}>
+          <SalesTable salesData={sales} />
+        </div>
       </div>
 
     </Layout>
