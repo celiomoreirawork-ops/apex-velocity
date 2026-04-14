@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import anime from 'animejs';
 import { formatShortBRL } from '../../../utils/formatters';
 import { createPortal } from 'react-dom';
@@ -23,54 +23,59 @@ const formatFullBRL = (val) =>
 export default function RankingChart({ salesData = [] }) {
   const barsRef = useRef([]);
   const [hoveredData, setHoveredData] = useState(null);
-
-  // Aggregate sellers
-  const sellerAgg = {};
-  if (Array.isArray(salesData)) {
-    salesData.forEach(s => {
-      if (!s.seller) return;
-      if (!sellerAgg[s.seller]) {
-        sellerAgg[s.seller] = { revenue: 0, qty: 0, models: {}, biggestSale: 0, biggestSaleModel: '', biggestSaleQty: 0 };
-      }
-      sellerAgg[s.seller].revenue += (s.revenue || 0);
-      sellerAgg[s.seller].qty     += (s.qty || 1);
-      if (s.model) sellerAgg[s.seller].models[s.model] = (sellerAgg[s.seller].models[s.model] || 0) + (s.qty || 1);
-      if ((s.revenue || 0) > sellerAgg[s.seller].biggestSale) {
-        sellerAgg[s.seller].biggestSale      = s.revenue || 0;
-        sellerAgg[s.seller].biggestSaleModel = s.model || 'N/A';
-        sellerAgg[s.seller].biggestSaleQty   = s.qty || 1;
-      }
-    });
-  }
-
-  const sorted   = Object.entries(sellerAgg).sort((a, b) => b[1].revenue - a[1].revenue);
-  const labels   = sorted.map(s => s[0].split(' ')[0]);
-  const dataVals = sorted.map(s => s[1].revenue);
-  const maxVal   = Math.max(...dataVals, 1);
-
-  const globalVolumeLeader = Math.max(...sorted.map(s => s[1].qty));
-  const globalBiggestSale  = Math.max(...sorted.map(s => s[1].biggestSale));
-
-  const fullData = sorted.map(([name, d]) => ({
-    name: name.split(' ').slice(0, 2).join(' '),
-    revenue: d.revenue, qty: d.qty,
-    biggestSale: d.biggestSale,
-    vehicleTags: Object.entries(d.models).sort((a, b) => b[1] - a[1]),
-    isVolumeLeader: d.qty === globalVolumeLeader && globalVolumeLeader > 0,
-    isBiggestSaleLeader: d.biggestSale === globalBiggestSale && globalBiggestSale > 0
-  }));
-
   const [hasAnimated, setHasAnimated] = useState(false);
   const containerRef = useRef(null);
 
+  const { labels, dataVals, maxVal, fullData } = useMemo(() => {
+    const sellerAgg = {};
+    if (Array.isArray(salesData)) {
+      salesData.forEach((s) => {
+        if (!s.seller) return;
+        if (!sellerAgg[s.seller]) {
+          sellerAgg[s.seller] = { revenue: 0, qty: 0, models: {}, biggestSale: 0, biggestSaleModel: '', biggestSaleQty: 0 };
+        }
+        sellerAgg[s.seller].revenue += (s.revenue || 0);
+        sellerAgg[s.seller].qty += (s.qty || 1);
+        if (s.model) sellerAgg[s.seller].models[s.model] = (sellerAgg[s.seller].models[s.model] || 0) + (s.qty || 1);
+        if ((s.revenue || 0) > sellerAgg[s.seller].biggestSale) {
+          sellerAgg[s.seller].biggestSale = s.revenue || 0;
+          sellerAgg[s.seller].biggestSaleModel = s.model || 'N/A';
+          sellerAgg[s.seller].biggestSaleQty = s.qty || 1;
+        }
+      });
+    }
+
+    const sorted = Object.entries(sellerAgg).sort((a, b) => b[1].revenue - a[1].revenue);
+    const labels = sorted.map((s) => s[0].split(' ')[0]);
+    const dataVals = sorted.map((s) => s[1].revenue);
+    const maxVal = Math.max(...dataVals, 1);
+
+    const globalVolumeLeader = Math.max(...sorted.map((s) => s[1].qty), 0);
+    const globalBiggestSale = Math.max(...sorted.map((s) => s[1].biggestSale), 0);
+
+    const fullData = sorted.map(([name, d]) => ({
+      name: name.split(' ').slice(0, 2).join(' '),
+      revenue: d.revenue,
+      qty: d.qty,
+      biggestSale: d.biggestSale,
+      vehicleTags: Object.entries(d.models).sort((a, b) => b[1] - a[1]),
+      isVolumeLeader: d.qty === globalVolumeLeader && globalVolumeLeader > 0,
+      isBiggestSaleLeader: d.biggestSale === globalBiggestSale && globalBiggestSale > 0
+    }));
+
+    return { labels, dataVals, maxVal, fullData };
+  }, [salesData]);
+
   useEffect(() => {
+    if (hasAnimated) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
+          observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.3 }
     );
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
