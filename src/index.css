@@ -132,6 +132,15 @@
   .text-large {
     letter-spacing: -0.04em !important;
   }
+  /* ─── Logo Protection (Anti-regression) ─────────── */
+  /* Decisively block any stroke from global styles or future rules */
+  .apex-logo-sanitized,
+  .apex-logo-sanitized * {
+    stroke: none !important;
+    stroke-width: 0 !important;
+    outline: none !important;
+    filter: none !important;
+  }
 }
 
 /* ─── Select option contrast fix ──────────────────── */

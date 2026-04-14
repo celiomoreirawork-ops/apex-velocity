@@ -52,6 +52,7 @@ const FilterSelect = ({ label, value, onChange, options, placeholder }) => (
         fontSize: 10, fontWeight: 300, color: C.white, letterSpacing: '-0.02em',
         background: '#24252E', border: 'none', borderRadius: 9999,
         padding: '6px 16px', outline: 'none', cursor: 'pointer', width: '100%',
+        appearance: 'none', WebkitAppearance: 'none', // Remove native styles for perfect rounding
       }}
     >
       <option value="">{placeholder}</option>
@@ -254,7 +255,7 @@ export default function SalesTable({ salesData }) {
           <label style={{ fontSize: 9, fontWeight: 300, color: C.gray200, letterSpacing: 'normal' }}>Ordenar</label>
           <button
             onClick={() => setSortOrder(p => p === 'desc' ? 'asc' : 'desc')}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: 9999, border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 300, color: C.gray200, letterSpacing: '-0.02em' }}
           >
             <span>{sortOrder === 'desc' ? 'Maior → Menor' : 'Menor → Maior'}</span>
             <IconSort />
