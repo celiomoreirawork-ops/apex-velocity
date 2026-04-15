@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import anime from 'animejs';
 import { parseMeta, formatMetaDisplay } from '../../../utils/formatters';
 
-import BadgeIcon from '../BadgeIcon';
-
 const C = {
   white:   '#FFFFFF',
   gray200: '#D0D1D6',
@@ -84,17 +82,20 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
     return () => observer.disconnect();
   }, []);
 
-  const currentLevel = useMemo(() => {
-    if (percent >= 175) return 'lendario';
-    if (percent >= 150) return 'avanco';
-    if (percent >= 125) return 'tracao';
-    if (percent >= 100) return 'ritmo';
-    return null;
-  }, [percent]);
+  const badgeLevels = useMemo(() => ([
+    { threshold: 25, label: 'Nível 25', legend: '(acima de 25%)' },
+    { threshold: 50, label: 'Nível 50', legend: '(acima de 50%)' },
+    { threshold: 100, label: 'Nível 100', legend: '(acima de 100%)' },
+  ]), []);
+
+  const activeBadgeThreshold = useMemo(() => {
+    const unlocked = badgeLevels.filter(({ threshold }) => percent >= threshold);
+    return unlocked.length ? unlocked[unlocked.length - 1].threshold : null;
+  }, [badgeLevels, percent]);
 
   useEffect(() => {
     if (!hasAnimated) return;
-    const cappedPercent = Math.min(percent, 175);
+    const cappedPercent = Math.min(percent, 100);
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const frame = window.requestAnimationFrame(() => setAnimatedGaugePercent(cappedPercent));
       return () => window.cancelAnimationFrame(frame);
@@ -124,11 +125,11 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
 
   const diff = rawRealized - rawTarget;
   const isSurplus = diff > 0;
-  const normalizedGauge = Math.min(animatedGaugePercent / 175, 1);
-  const gaugeRadius = 64;
+  const normalizedGauge = Math.min(animatedGaugePercent / 100, 1);
+  const gaugeRadius = 96;
   const gaugeLength = Math.PI * gaugeRadius;
   const gaugeOffset = gaugeLength * (1 - normalizedGauge);
-  const showOverTargetGlow = percent > 100;
+  const realizedDisplay = formatMetaDisplay(rawRealized || 0);
 
   return (
     <div
@@ -142,14 +143,6 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         position: 'relative',
       }}
     >
-
-      {/* Achievement badge */}
-      {percent >= 100 && currentLevel && (
-        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 20, pointerEvents: 'none' }}>
-          <BadgeIcon level={currentLevel} title={currentLevel} />
-        </div>
-      )}
-
       {/* Card title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <IconTarget />
@@ -168,69 +161,49 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         <KPIBlock label="Best Seller"                          value={topModel || '--'} />
       </div>
 
-      {/* Dual arc telemetry gauge */}
+      {/* Arc telemetry gauge */}
       <div
         style={{
           position: 'relative',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 8,
-          padding: '12px 8px',
+          padding: '12px 8px 0',
+          gap: 24,
         }}
       >
         <svg
-          viewBox="0 0 220 170"
+          viewBox="0 0 260 180"
           role="img"
           aria-label={`Faturamento atingido: ${percent.toFixed(0)}%`}
-          style={{ width: '100%', maxWidth: 280, height: 'auto', overflow: 'visible' }}
+          style={{ width: '100%', maxWidth: 320, height: 'auto', overflow: 'visible' }}
         >
           <defs>
-            <linearGradient id="goalGaugeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+            <linearGradient id="goalGaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#5B9FFF" />
-              <stop offset="28.57%" stopColor="#5B9FFF" />
-              <stop offset="57.14%" stopColor="#0523E5" />
-              <stop offset="100%" stopColor="#D4AF37" />
+              <stop offset="100%" stopColor="#0523E5" />
             </linearGradient>
           </defs>
 
           <path
-            d="M 74 148 A 64 64 0 0 1 74 20"
+            d="M 34 146 A 96 96 0 0 1 226 146"
             stroke="rgba(255,255,255,0.12)"
-            strokeWidth="8"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M 146 148 A 64 64 0 0 0 146 20"
-            stroke="rgba(255,255,255,0.12)"
-            strokeWidth="8"
-            strokeLinecap="round"
+            strokeWidth="32"
+            strokeLinecap="butt"
             fill="none"
           />
 
           <path
-            d="M 74 148 A 64 64 0 0 1 74 20"
+            d="M 34 146 A 96 96 0 0 1 226 146"
             stroke="url(#goalGaugeGradient)"
-            strokeWidth="8"
-            strokeLinecap="round"
+            strokeWidth="32"
+            strokeLinecap="butt"
             fill="none"
-            strokeDasharray={gaugeLength}
+            strokeDasharray={`${gaugeLength} ${gaugeLength}`}
             strokeDashoffset={gaugeOffset}
             style={{
-              filter: showOverTargetGlow ? `drop-shadow(0 0 ${6 + ((Math.min(percent, 175) - 100) / 75) * 8}px rgba(212,175,55,0.55))` : 'none',
-            }}
-          />
-          <path
-            d="M 146 148 A 64 64 0 0 0 146 20"
-            stroke="url(#goalGaugeGradient)"
-            strokeWidth="8"
-            strokeLinecap="round"
-            fill="none"
-            strokeDasharray={gaugeLength}
-            strokeDashoffset={gaugeOffset}
-            style={{
-              filter: showOverTargetGlow ? `drop-shadow(0 0 ${6 + ((Math.min(percent, 175) - 100) / 75) * 8}px rgba(212,175,55,0.55))` : 'none',
+              filter: 'drop-shadow(0 0 6px rgba(5,35,229,0.35))',
             }}
           />
         </svg>
@@ -243,22 +216,81 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
             alignItems: 'center',
             justifyContent: 'center',
             pointerEvents: 'none',
+            top: '56%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            gap: 8,
           }}
         >
-          <span
+          <p
             style={{
-              fontFamily: '"DS-Digital", "Share Tech Mono", "JetBrains Mono", monospace',
+              fontFamily: 'Inter, sans-serif',
               fontSize: 32,
-              letterSpacing: '2px',
+              fontWeight: 500,
+              letterSpacing: '-0.02em',
               color: C.white,
               lineHeight: 1,
             }}
           >
+            {realizedDisplay}
+          </p>
+          <span style={{ fontSize: 20, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em', lineHeight: 1 }}>
             {`${percent.toFixed(0)}%`}
           </span>
-          <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.60)', textAlign: 'center', lineHeight: 1.25, marginTop: 6 }}>
-            Faturamento <br /> atingido
+          <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.60)', textAlign: 'center', lineHeight: 1.25 }}>
+            faturamento atingido
           </p>
+        </div>
+
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 24 }}>
+            {badgeLevels.map((badge) => {
+              const isActive = activeBadgeThreshold === badge.threshold;
+              return (
+                <div
+                  key={badge.threshold}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 8,
+                    minWidth: 94,
+                    transform: `scale(${isActive ? 1.05 : 1})`,
+                    transition: 'all 260ms ease-out',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: '50%',
+                      background: C.gray900,
+                      border: `1px solid ${isActive ? 'rgba(91,159,255,0.75)' : 'rgba(255,255,255,0.08)'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isActive ? C.blue400 : 'rgba(255,255,255,0.45)',
+                      filter: isActive ? 'none' : 'grayscale(1)',
+                      boxShadow: isActive ? '0 0 12px rgba(5,35,229,0.35)' : 'none',
+                      transition: 'all 260ms ease-out',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M8 12.5 10.7 15 16.5 9.5" />
+                    </svg>
+                  </div>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 500, color: C.white, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                    {badge.label}
+                  </p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 300, color: 'rgba(208,209,214,0.72)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+                    {badge.legend}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
