@@ -10,7 +10,6 @@ const C = {
   gray900: '#24252E',
   blue400: '#5B9FFF',
   blue700: '#0523E5',
-  blue950: '#1B0056',
   divider: 'rgba(88,91,108,0.20)',
 };
 
@@ -50,6 +49,25 @@ const IconStar = () => (
 const formatFullBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
 
+const formatCompactValue = (value = 0) => {
+  const abs = Math.abs(value);
+  const sign = value < 0 ? '-' : '';
+
+  if (abs >= 1000000) {
+    const compact = abs / 1000000;
+    const rounded = Number(compact.toFixed(1));
+    return `${sign}${rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)}M`;
+  }
+
+  if (abs >= 1000) {
+    const compact = abs / 1000;
+    const rounded = Number(compact.toFixed(1));
+    return `${sign}${rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)}K`;
+  }
+
+  return `${value}`;
+};
+
 // KPIBlock — "Meta do mês" gets Degradê 2. Others get plain surface.
 // KPIBlock — Subcard standard borderRadius updated to 16px
 const KPIBlock = ({ label, value, isHighlight = false }) => (
@@ -60,7 +78,7 @@ const KPIBlock = ({ label, value, isHighlight = false }) => (
     flexDirection: 'column',
     gap: 4,
     ...(isHighlight
-      ? { background: 'linear-gradient(135deg, #0523E5 0%, #1B0056 100%)' }
+      ? { background: 'linear-gradient(135deg, #5B9FFF 0%, #0523E5 100%)' }
       : { background: 'rgba(255,255,255,0.04)' }
     ),
   }}>
@@ -83,19 +101,15 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
   }, []);
 
   const badgeLevels = useMemo(() => ([
-    { threshold: 25, label: 'Nível 25', legend: '(acima de 25%)' },
-    { threshold: 50, label: 'Nível 50', legend: '(acima de 50%)' },
-    { threshold: 100, label: 'Nível 100', legend: '(acima de 100%)' },
+    { threshold: 100, label: 'Ritmo', legend: '(acima de 100%)' },
+    { threshold: 135, label: 'Tração', legend: '(acima de 135%)' },
+    { threshold: 150, label: 'Avanço', legend: '(acima de 150%)' },
+    { threshold: 175, label: 'Lendário', legend: '(acima de 175%)' },
   ]), []);
-
-  const activeBadgeThreshold = useMemo(() => {
-    const unlocked = badgeLevels.filter(({ threshold }) => percent >= threshold);
-    return unlocked.length ? unlocked[unlocked.length - 1].threshold : null;
-  }, [badgeLevels, percent]);
 
   useEffect(() => {
     if (!hasAnimated) return;
-    const cappedPercent = Math.min(percent, 100);
+    const cappedPercent = Math.min(Math.max(percent, 0), 175);
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const frame = window.requestAnimationFrame(() => setAnimatedGaugePercent(cappedPercent));
       return () => window.cancelAnimationFrame(frame);
@@ -106,7 +120,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
       targets: animationState,
       value: cappedPercent,
       duration: 1200,
-      easing: 'easeOutExpo',
+      easing: 'easeOutCubic',
       update: () => setAnimatedGaugePercent(animationState.value),
     });
 
@@ -125,11 +139,12 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
 
   const diff = rawRealized - rawTarget;
   const isSurplus = diff > 0;
-  const normalizedGauge = Math.min(animatedGaugePercent / 100, 1);
+  const normalizedGauge = Math.min(animatedGaugePercent / 175, 1);
   const gaugeRadius = 96;
   const gaugeLength = Math.PI * gaugeRadius;
   const gaugeOffset = gaugeLength * (1 - normalizedGauge);
-  const realizedDisplay = formatMetaDisplay(rawRealized || 0);
+  const realizedDisplay = formatCompactValue(rawRealized || 0);
+  const isOverTarget = percent > 100;
 
   return (
     <div
@@ -169,10 +184,16 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '12px 8px 0',
+          padding: '4px 8px 20px',
           gap: 24,
         }}
       >
+        <style>{`
+          @keyframes goalGaugePulse {
+            0%, 100% { opacity: 0.55; transform: scale(0.995); }
+            50% { opacity: 0.95; transform: scale(1.005); }
+          }
+        `}</style>
         <svg
           viewBox="0 0 260 180"
           role="img"
@@ -183,29 +204,46 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
             <linearGradient id="goalGaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#5B9FFF" />
               <stop offset="100%" stopColor="#0523E5" />
+              {isOverTarget && (
+                <animateTransform
+                  attributeName="gradientTransform"
+                  type="translate"
+                  from="-1 0"
+                  to="1 0"
+                  dur="3.2s"
+                  repeatCount="indefinite"
+                />
+              )}
             </linearGradient>
           </defs>
 
           <path
             d="M 34 146 A 96 96 0 0 1 226 146"
-            stroke="rgba(255,255,255,0.12)"
-            strokeWidth="32"
-            strokeLinecap="butt"
+            stroke="rgba(88,91,108,0.62)"
+            strokeWidth="28"
+            strokeLinecap="round"
             fill="none"
           />
 
           <path
             d="M 34 146 A 96 96 0 0 1 226 146"
             stroke="url(#goalGaugeGradient)"
-            strokeWidth="32"
-            strokeLinecap="butt"
+            strokeWidth="28"
+            strokeLinecap="round"
             fill="none"
             strokeDasharray={`${gaugeLength} ${gaugeLength}`}
             strokeDashoffset={gaugeOffset}
             style={{
-              filter: 'drop-shadow(0 0 6px rgba(5,35,229,0.35))',
+              filter: isOverTarget
+                ? 'drop-shadow(0 0 8px rgba(91,159,255,0.35)) drop-shadow(0 0 16px rgba(5,35,229,0.28))'
+                : 'drop-shadow(0 0 6px rgba(5,35,229,0.26))',
+              animation: isOverTarget ? 'goalGaugePulse 2.8s ease-in-out infinite' : 'none',
+              transformOrigin: '130px 146px',
             }}
           />
+
+          <text x="34" y="168" fill="rgba(208,209,214,0.55)" fontSize="10" fontWeight="400" textAnchor="middle">0%</text>
+          <text x="226" y="168" fill="rgba(208,209,214,0.55)" fontSize="10" fontWeight="400" textAnchor="middle">175%</text>
         </svg>
 
         <div
@@ -216,28 +254,25 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
             alignItems: 'center',
             justifyContent: 'center',
             pointerEvents: 'none',
-            top: '56%',
+            top: '63%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            gap: 8,
+            gap: 2,
           }}
         >
           <p
             style={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: 32,
+              fontSize: 38,
               fontWeight: 500,
               letterSpacing: '-0.02em',
               color: C.white,
-              lineHeight: 1,
+              lineHeight: 0.98,
             }}
           >
             {realizedDisplay}
           </p>
-          <span style={{ fontSize: 20, fontWeight: 500, color: C.blue400, letterSpacing: '-0.02em', lineHeight: 1 }}>
-            {`${percent.toFixed(0)}%`}
-          </span>
-          <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.60)', textAlign: 'center', lineHeight: 1.25 }}>
+          <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.60)', textAlign: 'center', lineHeight: 1.05, marginTop: 6 }}>
             faturamento atingido
           </p>
         </div>
@@ -245,7 +280,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 24 }}>
             {badgeLevels.map((badge) => {
-              const isActive = activeBadgeThreshold === badge.threshold;
+              const isActive = percent >= badge.threshold;
               return (
                 <div
                   key={badge.threshold}
@@ -255,7 +290,7 @@ export default function MetaVisualization({ percent, rawRealized, rawTarget, onT
                     alignItems: 'center',
                     gap: 8,
                     minWidth: 94,
-                    transform: `scale(${isActive ? 1.05 : 1})`,
+                    transform: `scale(${isActive ? 1.04 : 1})`,
                     transition: 'all 260ms ease-out',
                   }}
                 >
